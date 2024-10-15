@@ -1,5 +1,6 @@
 declare namespace NodeJS {
     export interface ProcessEnv {
-        REGION: string,
+        USER_VM: string,
+        PUBLIC_KEY: string,
     }
 }

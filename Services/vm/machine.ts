@@ -4,8 +4,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 
-export function createVM(subnet: gcp.compute.Subnetwork, 
-    ssh_key: string, vmName: string) {
+export function createVM(subnet: gcp.compute.Subnetwork, vmName: string) {
 
     const VM = new gcp.compute.Instance(vmName, {
 
@@ -27,7 +26,7 @@ export function createVM(subnet: gcp.compute.Subnetwork,
         }],
 
         metadata: {
-            "ssh-keys": ssh_key,
+            "ssh-keys": `${process.env.USER_VM}:${process.env.PUBLIC_KEY}`,
         }
     });
 
