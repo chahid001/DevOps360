@@ -28,6 +28,8 @@ export function createBastion(vpc: Network) {
     });
 
     new Instance("bastion-host", {
+
+        name: "bastion-host",
         machineType: "e2-medium",
         zone: "us-central1-a",
         bootDisk: {

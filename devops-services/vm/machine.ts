@@ -5,12 +5,12 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 
-export function createVM(subnet: Subnetwork, vmName: string, zone: string) {
+export function createVM(subnet: Subnetwork, vmName: string, zone: string, machine: string) {
 
     const VM = new gcp.compute.Instance(vmName, {
         
         name: vmName,
-        machineType: "e2-medium",
+        machineType: machine,
         zone: zone,
         bootDisk: {
             initializeParams: {

@@ -19,28 +19,32 @@ const services = [
         region: "europe-southwest1", 
         subnetCIDR: "10.0.1.0/24",
         zone: "europe-southwest1-a",
+        machine: "e2-highcpu-4",
         ports: ["80", "443"] 
     },
     { 
         name: "runner", 
         region: "europe-southwest1",
         zone: "europe-southwest1-b", 
-        subnetCIDR: "10.0.2.0/24", 
+        subnetCIDR: "10.0.2.0/24",
+        machine: "e2-medium", 
         ports: []
     },
     { 
         name: "nexus", 
         region: "us-west1",
         zone: "us-west1-a", 
-        subnetCIDR: "10.0.3.0/24", 
-        ports: ["8080"] 
+        subnetCIDR: "10.0.3.0/24",
+        machine: "e2-medium", 
+        ports: ["8081"] 
 
     },
     { 
         name: "sonarqube", 
         region: "us-west1",
         zone: "us-west1-b", 
-        subnetCIDR: "10.0.4.0/24", 
+        subnetCIDR: "10.0.4.0/24",
+        machine: "e2-medium", 
         ports: ["9000"] 
     },
 ]
@@ -78,7 +82,7 @@ services.forEach(service => {
         targetTags: [`${service.name}`],
     });
 
-    createVM(subnet, service.name, service.zone);
+    createVM(subnet, service.name, service.zone, service.machine);
 
 });
 
