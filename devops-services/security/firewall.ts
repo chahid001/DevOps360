@@ -1,12 +1,12 @@
 import * as gcp from "@pulumi/gcp";
-import { Firewall } from "@pulumi/gcp/compute";
+import { Firewall, Network } from "@pulumi/gcp/compute";
 
 
-export function createFireWall(target: string, network: string, ports: string[]) {
+export function createFireWall(target: string, vpc: Network, ports: string[]) {
 
     new Firewall(`${target}-firewall`, {
 
-        network: network,
+        network: vpc.id,
 
         allows: [
             {
@@ -17,7 +17,7 @@ export function createFireWall(target: string, network: string, ports: string[])
 
         sourceRanges: ["0.0.0.0/0"],
         targetTags: [`${target}`],
-        
+
     });
 
 }
