@@ -1,4 +1,4 @@
-name: Services
+name: devops-services
 description: Google cloud DevOps Infra - Gitlab | SonarQube | Nexus | Runners
 runtime:
   name: nodejs

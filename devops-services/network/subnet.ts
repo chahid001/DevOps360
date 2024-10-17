@@ -1,15 +1,16 @@
 import * as gcp from "@pulumi/gcp";
+import { Network, Subnetwork } from "@pulumi/gcp/compute";
 
-// export function createSubnet(vpc: gcp.compute.Network, 
-//     name: string, range: string) {
+export function createSubnet(vpc: Network, name: string, 
+    region: string, range: string) {
 
-//     const subnet = new gcp.compute.Subnetwork(name, {
+    const subnet = new Subnetwork(name, {
 
-//         region: "us-central1",
-//         network: vpc.id,
-//         ipCidrRange: range,
-//         privateIpGoogleAccess: true,
-//     });
+        region: region,
+        network: vpc.id,
+        ipCidrRange: range,
+        privateIpGoogleAccess: true,
+    });
 
-//     return subnet;
-// }  
+    return subnet;
+}  
