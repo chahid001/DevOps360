@@ -20,14 +20,15 @@ export function createVM(subnet: gcp.compute.Subnetwork, vmName: string) {
         networkInterfaces: [{   
             network: subnet.network,
             subnetwork: subnet.id,
-            accessConfigs: [{
-                //Private
-            }]
+            networkIp: "10.0.1.14",
+            accessConfigs: []
         }],
 
         metadata: {
             "ssh-keys": `${process.env.USER_VM}:${process.env.PUBLIC_KEY}`,
-        }
+        },
+
+        tags: ["ssh-allowed"]
     });
 
     return VM;
