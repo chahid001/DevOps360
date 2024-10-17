@@ -9,6 +9,7 @@ export function createVM(subnet: Subnetwork, vmName: string, zone: string) {
 
     const VM = new gcp.compute.Instance(vmName, {
         
+        name: vmName,
         machineType: "e2-medium",
         zone: zone,
         bootDisk: {

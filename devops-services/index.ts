@@ -14,10 +14,35 @@ createBastion(vpc);
 
 
 const services = [
-    { name: "gitlab", region: "europe-southwest1", subnetCIDR: "10.0.1.0/24", ports: ["80", "443"] },
-    { name: "runner", region: "europe-southwest1", subnetCIDR: "10.0.2.0/24", ports: []},
-    { name: "nexus", region: "us-west1", subnetCIDR: "10.0.3.0/24", ports: ["8080"] },
-    { name: "sonarqube", region: "us-west1", subnetCIDR: "10.0.4.0/24", ports: ["9000"] },
+    { 
+        name: "gitlab", 
+        region: "europe-southwest1", 
+        subnetCIDR: "10.0.1.0/24",
+        zone: "europe-southwest1-a",
+        ports: ["80", "443"] 
+    },
+    { 
+        name: "runner", 
+        region: "europe-southwest1",
+        zone: "europe-southwest1-b", 
+        subnetCIDR: "10.0.2.0/24", 
+        ports: []
+    },
+    { 
+        name: "nexus", 
+        region: "us-west1",
+        zone: "us-west1-a", 
+        subnetCIDR: "10.0.3.0/24", 
+        ports: ["8080"] 
+
+    },
+    { 
+        name: "sonarqube", 
+        region: "us-west1",
+        zone: "us-west1-b", 
+        subnetCIDR: "10.0.4.0/24", 
+        ports: ["9000"] 
+    },
 ]
 
 const subnets_eu: Subnetwork[] = [];
@@ -53,13 +78,9 @@ services.forEach(service => {
         targetTags: [`${service.name}`],
     });
 
-    createVM(subnet, service.name, `${service.region}-a`);
+    createVM(subnet, service.name, service.zone);
 
 });
 
 createNatGateway("eu", subnets_eu);
 createNatGateway("us", subnets_us);
-
-// const subnet = createSubnet(vpc, "subnet-test", "10.0.1.0/24");
-// createNatGateway(subnet);
-// createVM(subnet, "vm-test");
