@@ -4,6 +4,7 @@ import { createNatGateway } from './network/nat'
 import { createVM } from './vm/machine'
 import { createBastion } from './bastion/bastion'
 import {createFireWall} from './security/firewall'
+import { createDataBaseSonar } from './data/database'
 import { Firewall, Instance, Subnetwork } from "@pulumi/gcp/compute";
 
 
@@ -44,7 +45,7 @@ const services = [
         region: "us-west1",
         zone: "us-west1-b", 
         subnetCIDR: "10.0.4.0/24",
-        machine: "e2-medium", 
+        machine: "e2-standard-2", 
         ports: ["9000"] 
     },
 ]
@@ -88,3 +89,5 @@ services.forEach(service => {
 
 createNatGateway("eu", subnets_eu);
 createNatGateway("us", subnets_us);
+
+createDataBaseSonar(vpc)
