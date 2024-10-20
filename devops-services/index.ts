@@ -5,6 +5,7 @@ import { createVM } from './vm/machine'
 import { createBastion } from './bastion/bastion'
 import {createFireWall} from './security/firewall'
 import { createDataBase } from './data/database'
+import { peerVPC } from './data/vpc-peering'
 import { Firewall, Instance, Subnetwork } from "@pulumi/gcp/compute";
 import * as dotenv from "dotenv";
 
@@ -15,6 +16,7 @@ dotenv.config();
 const vpc = createVPC("vpc-global-devops");
 //Create Jump Server
 createBastion(vpc);
+const peer = peerVPC(vpc);
 
 
 const services = [
@@ -26,23 +28,23 @@ const services = [
         machine: "e2-highcpu-4",
         ports: ["80", "443"] 
     },
-    { 
-        name: "runner", 
-        region: "europe-southwest1",
-        zone: "europe-southwest1-b", 
-        subnetCIDR: "10.0.2.0/24",
-        machine: "e2-medium", 
-        ports: []
-    },
-    { 
-        name: "nexus", 
-        region: "us-west1",
-        zone: "us-west1-a", 
-        subnetCIDR: "10.0.3.0/24",
-        machine: "e2-medium", 
-        ports: ["8081"] 
+    // { 
+    //     name: "runner", 
+    //     region: "europe-southwest1",
+    //     zone: "europe-southwest1-b", 
+    //     subnetCIDR: "10.0.2.0/24",
+    //     machine: "e2-medium", 
+    //     ports: []
+    // },
+    // { 
+    //     name: "nexus", 
+    //     region: "us-west1",
+    //     zone: "us-west1-a", 
+    //     subnetCIDR: "10.0.3.0/24",
+    //     machine: "e2-medium", 
+    //     ports: ["8081"] 
 
-    },
+    // },
     { 
         name: "sonarqube", 
         region: "us-west1",
@@ -72,6 +74,14 @@ services.forEach(service => {
         createFireWall(service.name, vpc, service.ports);
     }
 
+    if (service.name === "gitlab") {
+        createDataBase(service.name, service.region, vpc, process.env.GITLAB_DB_USER, process.env.GITLAB_DB_PASSWORD, peer);
+    }
+
+    if (service.name === "sonarqube") {
+        createDataBase(service.name, service.region, vpc, process.env.SONAR_DB_USER, process.env.SONAR_DB_PASSWORD, peer);
+    }
+
     new Firewall(`allow-${service.name}`, {
         network: vpc.id,
         
@@ -92,5 +102,5 @@ services.forEach(service => {
 createNatGateway("eu", subnets_eu);
 createNatGateway("us", subnets_us);
 
-createDataBase(services[0].name, vpc, process.env.SONAR_DB_USER, process.env.SONAR_DB_PASSWORD);
-createDataBase(services[3].name, vpc, process.env.GITLAB_DB_USER, process.env.GITLAB_DB_PASSWORD);
+// createDataBase(services[0].name, vpc, "10.0.11.3",process.env.SONAR_DB_USER, process.env.SONAR_DB_PASSWORD);
+// createDataBase(services[1].name, vpc, "10.0.12.3",process.env.GITLAB_DB_USER, process.env.GITLAB_DB_PASSWORD);
