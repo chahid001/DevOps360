@@ -2,28 +2,30 @@ import * as gcp from "@pulumi/gcp";
 import { Firewall, Network } from "@pulumi/gcp/compute";
 import { Database, DatabaseInstance, User } from "@pulumi/gcp/sql";
 import * as dotenv from "dotenv";
+import path = require("path");
 
 dotenv.config();
 
-export function createDataBaseSonar(vpc: Network) {
+export function createDataBase(service: string, vpc: Network, 
+    user: string, password: string) {
 
-    const googleServicesIp = new gcp.compute.GlobalAddress("google-services-ip", {
+    const googleServicesIp = new gcp.compute.GlobalAddress(`${service}-services-ip`, {
         addressType: "INTERNAL",
         prefixLength: 24, 
         purpose: "VPC_PEERING",
         network: vpc.id,
-        address: "10.0.5.0" 
     });
 
-    const privatevpc = new gcp.servicenetworking.Connection("vpc-peering", {
+    const privatevpc = new gcp.servicenetworking.Connection(`${service}vpc-peering`, {
         network: vpc.id,
         service: "servicenetworking.googleapis.com",
         reservedPeeringRanges: [googleServicesIp.name],
     });
 
-    const Instance_data = new DatabaseInstance("sonar-db-instance", {
+    const Instance_data = new DatabaseInstance(`${service}-db-instance`, {
         databaseVersion: "POSTGRES_13",
         deletionProtection: false,
+        name: `${service}-DB`,
         settings: {
             tier: "db-f1-micro",
             backupConfiguration: {
@@ -39,15 +41,15 @@ export function createDataBaseSonar(vpc: Network) {
         dependsOn: [privatevpc],
     });
 
-    const dbUser = new User("db-user", {
+    const dbUser = new User(`${service}-db-user`, {
         instance: Instance_data.name,
-        name: "sonaruser",  
-        password: "sonarpassword", 
+        name: user,  
+        password: password, 
     });
 
     new Database("database-sonar", {
         instance: Instance_data.name,
-        name: "sonarqube"
+        name: service,
     });
 
     new Firewall("sonar-db-sec", {
@@ -57,7 +59,7 @@ export function createDataBaseSonar(vpc: Network) {
             ports: ["5432"], 
         }],
         sourceRanges: ["0.0.0.0/0"],  
-        targetTags: ["sonarqube"],    
+        targetTags: [`${service}`],    
     });
 }
 

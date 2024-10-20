@@ -12,6 +12,7 @@
         "noImplicitReturns": true,
         "forceConsistentCasingInFileNames": true
     },
+    "include": ["env.d.ts"],
     "files": [
         "index.ts"
     ]

@@ -4,8 +4,11 @@ import { createNatGateway } from './network/nat'
 import { createVM } from './vm/machine'
 import { createBastion } from './bastion/bastion'
 import {createFireWall} from './security/firewall'
-import { createDataBaseSonar } from './data/database'
+import { createDataBase } from './data/database'
 import { Firewall, Instance, Subnetwork } from "@pulumi/gcp/compute";
+import * as dotenv from "dotenv";
+
+dotenv.config();
 
 
 // Global VPC
@@ -84,10 +87,10 @@ services.forEach(service => {
     });
 
     createVM(subnet, service.name, service.zone, service.machine);
-
 });
 
 createNatGateway("eu", subnets_eu);
 createNatGateway("us", subnets_us);
 
-createDataBaseSonar(vpc)
+createDataBase(services[0].name, vpc, process.env.SONAR_DB_USER, process.env.SONAR_DB_PASSWORD);
+createDataBase(services[3].name, vpc, process.env.GITLAB_DB_USER, process.env.GITLAB_DB_PASSWORD);
