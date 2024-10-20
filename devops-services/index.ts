@@ -5,6 +5,7 @@ import { createVM } from './vm/machine'
 import { createBastion } from './bastion/bastion'
 import {createFireWall} from './security/firewall'
 import { createDataBase } from './data/database'
+import { createDNS, setDNS } from './DNS/internalDNS'
 import { peerVPC } from './data/vpc-peering'
 import { Firewall, Instance, Subnetwork } from "@pulumi/gcp/compute";
 import * as dotenv from "dotenv";
@@ -17,6 +18,8 @@ const vpc = createVPC("vpc-global-devops");
 //Create Jump Server
 createBastion(vpc);
 const peer = peerVPC(vpc);
+
+const dnsZone = createDNS(vpc);
 
 
 const services = [
@@ -96,7 +99,8 @@ services.forEach(service => {
         targetTags: [`${service.name}`],
     });
 
-    createVM(subnet, service.name, service.zone, service.machine);
+    const VM = createVM(subnet, service.name, service.zone, service.machine);
+    setDNS(service.name, dnsZone, VM);
 });
 
 createNatGateway("eu", subnets_eu);
