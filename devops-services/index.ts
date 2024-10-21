@@ -20,7 +20,7 @@ const vpc = createVPC("vpc-global-devops");
 //Create Jump Server
 createBastion(vpc);
 const peer = peerVPC(vpc);
-
+const DNSIP = createDNS(vpc);
 
 const services = [
     { 
@@ -31,23 +31,23 @@ const services = [
         machine: "e2-highcpu-4",
         ports: ["80", "443"] 
     },
-    // { 
-    //     name: "runner", 
-    //     region: "europe-southwest1",
-    //     zone: "europe-southwest1-b", 
-    //     subnetCIDR: "10.0.2.0/24",
-    //     machine: "e2-medium", 
-    //     ports: []
-    // },
-    // { 
-    //     name: "nexus", 
-    //     region: "us-west1",
-    //     zone: "us-west1-a", 
-    //     subnetCIDR: "10.0.3.0/24",
-    //     machine: "e2-medium", 
-    //     ports: ["80", "443"] 
+    { 
+        name: "runner", 
+        region: "europe-southwest1",
+        zone: "europe-southwest1-b", 
+        subnetCIDR: "10.0.2.0/24",
+        machine: "e2-medium", 
+        ports: []
+    },
+    { 
+        name: "nexus", 
+        region: "us-west1",
+        zone: "us-west1-a", 
+        subnetCIDR: "10.0.3.0/24",
+        machine: "e2-medium", 
+        ports: ["80", "443"] 
 
-    // },
+    },
     { 
         name: "sonarqube", 
         region: "us-west1",
@@ -99,11 +99,10 @@ services.forEach(service => {
         targetTags: [`${service.name}`],
     });
 
-    const VM = createVM(subnet, service.name, service.zone, service.machine);
+    const VM = createVM(subnet, service.name, service.zone, service.machine, "172.30.1.14");
 });
 
 createNatGateway("eu", subnets_eu);
 createNatGateway("us", subnets_us);
 
 createVPN(vpc);
-createDNS(vpc);

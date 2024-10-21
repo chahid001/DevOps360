@@ -15,12 +15,12 @@ export function createVPN(vpc: Network) {
         allows: [
             {
                 protocol: "udp",
-                ports: ["1194", "53"],
+                ports: ["1194"],
             },
 
             {
                 protocol: "tcp",
-                ports: ["22", "53"]
+                ports: ["22"]
             }, 
         ],
 
@@ -56,19 +56,15 @@ export function createVPN(vpc: Network) {
         tags: ["openvpn"]
     });
 
-    new Firewall("allow-internal-trrfaic", {
+    new Firewall("allow-internal-traffic", {
 
         network: vpc.id,
         allows: [
             {
                 protocol: "tcp",
-                ports: ["80", "443", "53"],
+                ports: ["80", "443"],
             },
-            {
-                protocol: "udp",
-                ports: ["53"],
-            }
         ],
-        sourceRanges: ["10.0.0.0/16", "172.31.1.0/24", "172.30.1.0/24"],
+        sourceRanges: ["10.0.0.0/16", "172.31.1.0/24"],
     });
 }
