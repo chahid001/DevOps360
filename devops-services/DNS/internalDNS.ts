@@ -1,36 +1,73 @@
 import * as gcp from "@pulumi/gcp";
-import { Instance, Network } from "@pulumi/gcp/compute";
-import { ManagedZone, RecordSet } from "@pulumi/gcp/dns";
-import * as dotenv from "dotenv";
-
-dotenv.config();
-
-
+import { Firewall, Network, Subnetwork, Instance, Router, RouterNat } from "@pulumi/gcp/compute";
 
 export function createDNS(vpc: Network) {
-
-    const dnsZone = new ManagedZone("private-zone", {
-        dnsName: "devops.360.",
-        visibility: "private",
-        privateVisibilityConfig: {
-            networks: [{
-                networkUrl: vpc.id,
-            }]
-        }
-    })
-
-    return dnsZone;
-}
-
-export function setDNS(service: string, dnsZone: ManagedZone, Instance: Instance) {
     
-    new RecordSet(`${service}-dns`, {
-        managedZone: dnsZone.name,
-        name: `${service}.devops.360.`,
-        type: "A",
-        ttl: 300,
-        rrdatas: [Instance.networkInterfaces[0].networkIp]
-    }, {
-        dependsOn: [dnsZone, Instance],
+    const subnet = new Subnetwork("dns-subnet", {
+        network: vpc.id,
+        region: "us-central1",
+        ipCidrRange: "172.30.1.0/24",
+        privateIpGoogleAccess: true,
+    });
+
+    new Firewall("dns-firewall", {
+        network: subnet.network,
+        allows: [
+            {
+                protocol: "tcp",
+                ports: ["22"]
+            }, 
+        ],
+
+        sourceRanges: ["0.0.0.0/0"],
+        targetTags: ["dns"],
+    });
+
+    new Instance("dns-server", {
+
+        name: "dns-server",
+        machineType: "e2-micro",
+        zone: "us-central1-c",
+        bootDisk: {
+            initializeParams: {
+                image: "ubuntu-os-cloud/ubuntu-2204-lts",
+                size: 10,
+            },
+        },
+
+        networkInterfaces: [{   
+            network: subnet.network,
+            subnetwork: subnet.id,
+            networkIp: "172.30.1.14",
+            accessConfigs: []
+        }],
+
+        metadata: {
+            "ssh-keys": `${process.env.USER_VM}:${process.env.PUBLIC_KEY}`,
+        },
+
+        tags: ["dns"]
+    });
+
+    const NAT_Router = new Router("dns-route", {
+        network: subnet.network,
+        region: subnet.region,
+        
+        bgp: {
+            asn: 65001,
+        }
+    });
+
+    const NAT = new RouterNat("dns-server-nat", {
+        router: NAT_Router.name,
+        region: NAT_Router.region,
+        natIpAllocateOption: "AUTO_ONLY",
+        sourceSubnetworkIpRangesToNat: "LIST_OF_SUBNETWORKS",
+        subnetworks: [
+            {
+                name: subnet.id,
+                sourceIpRangesToNats: ["ALL_IP_RANGES"],
+            }
+        ]
     });
 }

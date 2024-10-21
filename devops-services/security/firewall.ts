@@ -17,7 +17,6 @@ export function createFireWall(target: string, vpc: Network, ports: string[]) {
 
         sourceRanges: ["0.0.0.0/0"],
         targetTags: [`${target}`],
-
     });
 
 }

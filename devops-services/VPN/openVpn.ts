@@ -15,13 +15,13 @@ export function createVPN(vpc: Network) {
         allows: [
             {
                 protocol: "udp",
-                ports: ["1194"],
+                ports: ["1194", "53"],
             },
 
             {
                 protocol: "tcp",
-                ports: ["22"]
-            }
+                ports: ["22", "53"]
+            }, 
         ],
 
         sourceRanges: ["0.0.0.0/0"],
@@ -62,9 +62,13 @@ export function createVPN(vpc: Network) {
         allows: [
             {
                 protocol: "tcp",
-                ports: ["80", "443"],
+                ports: ["80", "443", "53"],
+            },
+            {
+                protocol: "udp",
+                ports: ["53"],
             }
         ],
-        sourceRanges: ["10.0.0.0/16", "172.31.1.0/24"],
+        sourceRanges: ["10.0.0.0/16", "172.31.1.0/24", "172.30.1.0/24"],
     });
 }

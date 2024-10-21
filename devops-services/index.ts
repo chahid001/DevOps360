@@ -6,7 +6,7 @@ import { createVM } from './vm/machine'
 import { createBastion } from './bastion/bastion'
 import {createFireWall} from './security/firewall'
 import { createDataBase } from './data/database'
-import { createDNS, setDNS } from './DNS/internalDNS'
+import { createDNS } from './DNS/internalDNS'
 import { createVPN } from './VPN/openVpn'
 import { peerVPC } from './data/vpc-peering'
 import { Firewall, Subnetwork } from "@pulumi/gcp/compute";
@@ -20,8 +20,6 @@ const vpc = createVPC("vpc-global-devops");
 //Create Jump Server
 createBastion(vpc);
 const peer = peerVPC(vpc);
-
-const dnsZone = createDNS(vpc);
 
 
 const services = [
@@ -47,7 +45,7 @@ const services = [
     //     zone: "us-west1-a", 
     //     subnetCIDR: "10.0.3.0/24",
     //     machine: "e2-medium", 
-    //     ports: ["8081"] 
+    //     ports: ["80", "443"] 
 
     // },
     { 
@@ -56,7 +54,7 @@ const services = [
         zone: "us-west1-b", 
         subnetCIDR: "10.0.4.0/24",
         machine: "e2-standard-2", 
-        ports: ["9000"] 
+        ports: ["80", "443"] 
     },
 ]
 
@@ -94,7 +92,7 @@ services.forEach(service => {
             {
                 protocol: "tcp",
                 ports: ["22"],
-            }
+            },
         ],
 
         sourceRanges: ["172.32.1.0/24"],
@@ -102,10 +100,10 @@ services.forEach(service => {
     });
 
     const VM = createVM(subnet, service.name, service.zone, service.machine);
-    setDNS(service.name, dnsZone, VM);
 });
 
 createNatGateway("eu", subnets_eu);
 createNatGateway("us", subnets_us);
 
 createVPN(vpc);
+createDNS(vpc);
