@@ -1,0 +1,26 @@
+---
+- name: Install NGINX
+  apt: 
+    name: nginx 
+    state: present 
+
+- name: Add SonarQube config for NGINX
+  copy:
+    src: ./../templates/sonarqube.conf
+    dest: /etc/nginx/sites-available/sonarqube
+
+- name: Enable site
+  file:
+    src: /etc/nginx/sites-available/sonarqube
+    dest: /etc/nginx/sites-enabled/sonarqube
+    state: link
+
+- name: Remove default Nginx site
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: Restart NGINX
+  systemd:
+    name: nginx 
+    state: restarted

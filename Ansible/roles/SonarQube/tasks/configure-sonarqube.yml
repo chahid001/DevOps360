@@ -1,0 +1,46 @@
+---
+- name: Configure SonarQube 
+  lineinfile:
+    path: /opt/sonarqube/conf/sonar.properties
+    regexp: '^sonar.jdbc'
+    line: |
+      sonar.jdbc.username={{  }}
+      sonar.jdbc.password={{  }}
+      sonar.jdbc.url=jdbc:postgresql://{{ SOANR_DB_IP }}/sonarqube
+    create: yes
+
+- name: Add system limits to sysctl.conf
+  lineinfile:
+    path: /etc/sysctl.conf
+    line: |
+      vm.max_map_count=524288
+      fs.file-max=131072
+    create: yes
+
+- name: Apply sysctl changes
+  command:
+    cmd: sysctl -p
+
+- name: Configure SonarQube user limits
+  copy:
+    dest: /etc/security/limits.d/99-sonarqube.conf
+    content: |
+      sonarqube   -   nofile   131072
+      sonarqube   -   nproc    8192
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Add SonarQube service 
+  copy: 
+    src: ./../templates/sonarqube.service
+    dest: /etc/systemd/system/sonarqube.service
+    owner: root 
+    group: root 
+    mode: '0644'
+
+- name: Enable SonarQube 
+  systemd:
+    name: sonarqube 
+    enabled: yes
+    state: started

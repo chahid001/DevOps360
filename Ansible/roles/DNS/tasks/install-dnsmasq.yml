@@ -1,0 +1,17 @@
+---
+- name: Install DNSMASQ
+  apt:
+    name: dnsmasq
+    state: present 
+    update_cache: yes
+
+- name: stop systemd resolved DNS
+  systemd:
+    name: systemd-resolved
+    state: stopped
+
+- name: disable systemd resolved DNS 
+  systemd:
+    name: systemd-resolved
+    enabled: no
+

@@ -1,0 +1,23 @@
+---
+- name: Configure DNSMASQ
+  copy: 
+    dest: /etc/dnsmasq.conf
+    content: |
+      interface=ens4
+      domain-needed
+      bogus-priv
+      address=/gitlab.devops360.org/10.0.1.2
+      address=/sonarqube.devops360.org/10.0.4.2
+      address=/nexus.devops360.org/10.0.3.2
+      server=8.8.8.8
+    mode: '0644'
+
+- name: Enable dnsmasq
+  systemd:
+    name: dnsmasq
+    enabled: yes
+
+- name: Start dnsmasq
+  systemd:
+    name: dnsmasq
+    state: started

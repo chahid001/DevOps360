@@ -1,0 +1,35 @@
+---
+- name: Install required tools
+  apt: 
+    name:
+      - openjdk-17-jdk
+      - unzip
+      - wget
+    state: present
+    update_cache: yes
+
+- name: Download SonarQube Package and unzip it
+  unarchive:
+    src: "https://binaries.sonarsource.com/Distribution/sonarqube/{{ SONAR_PACKAGE }}.zip"
+    dest: /opt
+    remote_src: yes
+
+- name: Rename SonarQube folder
+  command: mv /opt/{{ SONAR_PACKAGE }} /opt/sonarqube
+  creates: /opt/sonarqube
+
+- name: Create SonarQube user
+  user:
+    name: sonarqube
+    system: yes
+    shell: /usr/sbin/nologin
+
+- name: Set Ownership of SonarQube directory
+  file:
+    path: /opt/sonarqube
+    state: directory
+    owner: sonarqube
+    group: sonarqube
+    recurse: yes
+
+  

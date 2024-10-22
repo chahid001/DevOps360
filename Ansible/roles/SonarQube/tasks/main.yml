@@ -1,0 +1,10 @@
+---
+- name: Installing SonarQube
+  import_tasks: install-sonarqube.yml
+
+- name: Configuring SonarQube
+  import_tasks: configure-sonarqube.yml
+
+- name: Adding NGINX
+  import_tasks: add-nginx.yml
+    
