@@ -14,13 +14,19 @@ export function createDataBase(service: string, srv_region: string,
         deletionProtection: false,
         settings: {
             tier: "db-f1-micro",
+            databaseFlags: [
+                {
+                    name: "max_locks_per_transaction",
+                    value: "128",
+                },
+            ],
             backupConfiguration: {
                 enabled: false,
             },
             ipConfiguration: {
                 privateNetwork: vpc.id,
                 ipv4Enabled: false,
-            }
+            },
         },
         region: srv_region, 
     }, {

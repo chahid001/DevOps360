@@ -16,7 +16,7 @@ export function createVM(subnet: Subnetwork, vmName: string, zone: string, machi
         bootDisk: {
             initializeParams: {
                 image: "ubuntu-os-cloud/ubuntu-2204-lts",
-                size: 15,
+                size: 16,
             },
         },
 
@@ -28,9 +28,7 @@ export function createVM(subnet: Subnetwork, vmName: string, zone: string, machi
 
         metadata: {
             "ssh-keys": `${process.env.USER_VM}:${process.env.PUBLIC_KEY}`,
-            // "google-dhcp-options": `{"domain-name-servers": "${internalDnsIp}"}`,
         },
-
         tags: [`${vmName}`]
     });
 
