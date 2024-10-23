@@ -1,0 +1,29 @@
+---
+- name: Install dependencies
+  apt: 
+    name: openjdk-11-jdk
+    state: present 
+    update_cache: yes
+
+- name: Download and extract Nexus
+  unarchive:
+    src: https://download.sonatype.com/nexus/3/latest-unix.tar.gz
+    dest: /opt
+    remote_src: yes
+    creates: /opt/nexus
+
+- name: Create Nexus user
+  user: 
+    name: nexus
+    system: yes
+    shell: /usr/sbin/nologin
+
+- name: Set Ownership of Nexu directory
+  file:
+    path: /opt/nexus
+    state: directory
+    owner: nexus
+    group: nexus
+    mode: '0644'
+
+

@@ -1,0 +1,9 @@
+---
+- name: Installing Nexus
+  import_tasks: install-nexus.yml
+
+- name: Configuring Nexus
+  import_tasks: configure-nexus.yml
+
+- name: Adding NGINX
+  import_tasks: add-nginx.yml

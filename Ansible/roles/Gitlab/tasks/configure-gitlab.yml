@@ -1,0 +1,24 @@
+---
+- name: Modify gitlab.rb for PostgreSQL settings
+  lineinfile:
+      path: /etc/gitlab/gitlab.rb
+      regexp: '^#?{{ item.key }}'
+      line: "{{ item.key }} = '{{ item.value }}'"
+      create: yes
+      loop:
+        - { key: "external_url", value: "gitlab.devops360.org" }
+        - { key: "gitlab_rails['db_adapter']", value: "postgresql" }
+        - { key: "gitlab_rails['db_database']", value: "{{ db_name }}" }
+        - { key: "gitlab_rails['db_host']", value: "{{ db_host }}" }
+        - { key: "gitlab_rails['db_port']", value: "{{ db_port }}" }
+        - { key: "gitlab_rails['db_username']", value: "{{ db_user }}" }
+        - { key: "gitlab_rails['db_password']", value: "{{ db_password }}" }
+
+- name: Reconfigure GitLab
+  command: sudo gitlab-ctl reconfigure
+
+- name: Start GitLab service
+  ansible.builtin.systemd:
+    name: gitlab-runsvdir
+    state: started
+    enabled: yes

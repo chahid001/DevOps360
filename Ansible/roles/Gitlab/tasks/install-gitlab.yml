@@ -1,0 +1,21 @@
+---
+- name: Install dependencies
+  apt:
+    name: 
+      - curl
+      - openssh-server
+      - ca-certificates
+      - postfix
+    state: present
+    update_cache: yes
+
+- name: Add GitLab EE repository
+  command:
+    cmd: curl -s https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.deb.sh | sudo bash
+    creates: /etc/apt/sources.list.d/gitlab_gitlab-ee.list
+
+- name: Install GitLab EE
+  apt:
+    name: gitlab-ee
+    state: present
+    default_release: "{{ ansible_distribution_release }}"

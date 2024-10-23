@@ -4,15 +4,15 @@
     name: nginx 
     state: present 
 
-- name: Add SonarQube config for NGINX
+- name: Add Nexus config for NGINX
   copy:
-    src: ./../templates/sonarqube-nginx.conf
-    dest: /etc/nginx/sites-available/sonarqube
+    src: ./../templates/nexus-nginx.conf
+    dest: /etc/nginx/sites-available/nexus
 
 - name: Enable site
   file:
-    src: /etc/nginx/sites-available/sonarqube
-    dest: /etc/nginx/sites-enabled/sonarqube
+    src: /etc/nginx/sites-available/nexus
+    dest: /etc/nginx/sites-enabled/nexus
     state: link
 
 - name: Remove default Nginx site

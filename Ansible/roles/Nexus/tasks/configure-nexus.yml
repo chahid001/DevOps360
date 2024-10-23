@@ -1,0 +1,21 @@
+--- 
+- name: Update Nexus run_as_user in nexus.rc
+  ansible.builtin.lineinfile:
+    path: /opt/nexus/bin/nexus.rc
+    regexp: '^run_as_user='
+    line: 'run_as_user="nexus"'
+    create: yes
+
+- name: Add Nexus service 
+  copy: 
+    src: ./../templates/nexus.service
+    dest: /etc/systemd/system/nexus.service
+    owner: root 
+    group: root 
+    mode: '0644'
+
+- name: Enable Nexus 
+  systemd:
+    name: nexus 
+    enabled: yes
+    state: started
