@@ -46,43 +46,6 @@ export function createDNS(vpc: Network) {
             "ssh-keys": `${process.env.USER_VM}:${process.env.PUBLIC_KEY}`,
         },
 
-        // metadataStartupScript: `
-        //     #!/bin/bash
-
-        //     # Install dnsmasq
-        //     sudo apt-get update
-        //     sudo apt-get install -y dnsmasq
-
-        //     # Stop and disable systemd-resolved
-        //     sudo systemctl stop systemd-resolved
-        //     sudo systemctl disable systemd-resolved
-            
-        //     # Backup existing dnsmasq config
-        //     sudo cp /etc/dnsmasq.conf /etc/dnsmasq.conf.backup
-
-        //     # Configure dnsmasq for internal DNS records
-        //     sudo bash -c 'cat <<EOL > /etc/dnsmasq.conf
-        //         # Listen on the VPC interface
-        //         interface=ens4
-
-        //         # Set your domain
-        //         domain-needed
-        //         bogus-priv
-
-        //         # Define internal DNS records
-        //         address=/gitlab.devops.360/10.0.2.1  # GitLab VM IP
-        //         address=/sonarqube.devops.360/10.0.3.2  # Nexus VM IP
-        //         address=/nexus.devops.360/10.0.4.2  # SonarQube VM IP
-
-        //         # Optional: forward all other requests to an external DNS server
-        //         server=8.8.8.8
-        //     EOL'
-
-        //     # Restart dnsmasq to apply the changes
-        //     sudo systemctl restart dnsmasq
-        //     sudo systemctl enable dnsmasq
-        // `,
-
         tags: ["dns"]
     });
 

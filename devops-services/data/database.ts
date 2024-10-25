@@ -19,6 +19,10 @@ export function createDataBase(service: string, srv_region: string,
                     name: "max_locks_per_transaction",
                     value: "128",
                 },
+                { 
+                    name: "max_connections", 
+                    value: "200" 
+                },
             ],
             backupConfiguration: {
                 enabled: false,

@@ -13,6 +13,7 @@ export function createVM(subnet: Subnetwork, vmName: string, zone: string, machi
         name: vmName,
         machineType: machine,
         zone: zone,
+        allowStoppingForUpdate: true,
         bootDisk: {
             initializeParams: {
                 image: "ubuntu-os-cloud/ubuntu-2204-lts",

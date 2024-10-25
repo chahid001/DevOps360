@@ -1,0 +1,9 @@
+stages: 
+  - prebuild # Version provisoning X.x.p.RB
+  - sast # SonarQube
+  - sca # Dependency Check
+  - build # Docker build
+  - cis # Trivy Image Scanning
+  - publish # Publish Image to Nexus
+  - deploy_green # Deploy in staging to Green Server for Testing
+  - deploy_blue # Deploy in prod branch to Blue Server

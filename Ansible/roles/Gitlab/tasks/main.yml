@@ -1,0 +1,6 @@
+---
+- name: Installing Gitlab
+  import_tasks: install-gitlab.yml
+
+- name: Configuring Nexus
+  import_tasks: configure-gitlab.yml

@@ -15,8 +15,9 @@
     remote_src: yes
 
 - name: Rename SonarQube folder
-  command: mv /opt/{{ SONAR_PACKAGE }} /opt/sonarqube
-  creates: /opt/sonarqube
+  command: 
+    cmd: mv /opt/{{ SONAR_PACKAGE }} /opt/sonarqube
+    creates: /opt/sonarqube
 
 - name: Create SonarQube user
   user:

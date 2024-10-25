@@ -23,7 +23,3 @@
     update_cache: true
   when: docker_installed.rc != 0
   
-- name: Install Docker module for python
-  pip:
-    name: docker
-  when: docker_installed.rc != 0

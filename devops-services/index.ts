@@ -28,7 +28,7 @@ const services = [
         region: "europe-southwest1", 
         subnetCIDR: "10.0.1.0/24",
         zone: "europe-southwest1-a",
-        machine: "e2-highcpu-4",
+        machine: "e2-standard-4",
         ports: ["80", "443"] 
     },
     { 

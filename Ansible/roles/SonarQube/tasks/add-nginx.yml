@@ -4,6 +4,23 @@
     name: nginx 
     state: present 
 
+- name: Create cert directory for the user
+  file:
+    path: "/home/{{ ansible_user }}/cert"
+    state: directory
+    mode: '0755'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: Generate a self-signed certificate for SonarQube
+  shell: |
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    -keyout /home/user-cloud/cert/sonar.key \
+    -out /home/user-cloud/cert/sonar.crt \
+    -subj "/C=MA/ST=RABAT/L=RABAT/O=DevOps360/OU=IT/CN=sonarqube.devops360.org"
+  args:
+    creates: /home/user-cloud/cert/nexus.crt
+
 - name: Add SonarQube config for NGINX
   copy:
     src: ./../templates/sonarqube-nginx.conf

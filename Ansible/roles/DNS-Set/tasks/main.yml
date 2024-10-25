@@ -1,0 +1,40 @@
+---
+
+- name: Stop systemd-resolved DNS
+  systemd:
+    name: systemd-resolved
+    state: stopped
+
+- name: Unlink /etc/resolv.conf
+  file:
+    path: /etc/resolv.conf
+    state: absent
+
+- name: Add Internal DNS
+  lineinfile:
+    path: /etc/systemd/resolved.conf
+    regexp: '^DNS='
+    line: 'DNS={{ DNS_INTERNAL_IP }}'
+    state: present
+
+- name: Add Fallback DNS
+  lineinfile:
+    path: /etc/systemd/resolved.conf
+    regexp: '^FallbackDNS='
+    line: 'FallbackDNS=8.8.8.8'
+    state: present
+
+- name: Create /etc/resolv.conf with nameserver
+  copy:
+    content: |
+      nameserver {{ DNS_INTERNAL_IP }}
+    dest: /etc/resolv.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Restart systemd-resolved DNS
+  systemd:
+    name: systemd-resolved
+    enabled: yes
+    state: restarted

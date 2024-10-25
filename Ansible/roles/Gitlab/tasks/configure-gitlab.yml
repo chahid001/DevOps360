@@ -1,24 +1,24 @@
 ---
 - name: Modify gitlab.rb for PostgreSQL settings
   lineinfile:
-      path: /etc/gitlab/gitlab.rb
-      regexp: '^#?{{ item.key }}'
-      line: "{{ item.key }} = '{{ item.value }}'"
-      create: yes
-      loop:
-        - { key: "external_url", value: "gitlab.devops360.org" }
-        - { key: "gitlab_rails['db_adapter']", value: "postgresql" }
-        - { key: "gitlab_rails['db_database']", value: "{{ db_name }}" }
-        - { key: "gitlab_rails['db_host']", value: "{{ db_host }}" }
-        - { key: "gitlab_rails['db_port']", value: "{{ db_port }}" }
-        - { key: "gitlab_rails['db_username']", value: "{{ db_user }}" }
-        - { key: "gitlab_rails['db_password']", value: "{{ db_password }}" }
+    path: /etc/gitlab/gitlab.rb
+    regexp: '^#?{{ item.key }}'
+    line: "{{ item.key }} = '{{ item.value }}'"
+    create: yes
+  loop:
+    - { key: "external_url", value: "http://gitlab.devops360.org" }
+    - { key: "gitlab_rails['db_adapter']", value: "postgresql" }
+    - { key: "gitlab_rails['db_database']", value: "gitlab" }
+    - { key: "gitlab_rails['db_host']", value: "{{ GITLAB_DB_IP }}" }
+    - { key: "gitlab_rails['db_port']", value: 5432 }
+    - { key: "gitlab_rails['db_username']", value: "{{ GITLAB_DB_USER }}" }
+    - { key: "gitlab_rails['db_password']", value: "{{ GITLAB_DB_PASS }}" }
 
 - name: Reconfigure GitLab
-  command: sudo gitlab-ctl reconfigure
+  command: gitlab-ctl reconfigure
 
 - name: Start GitLab service
-  ansible.builtin.systemd:
+  systemd:
     name: gitlab-runsvdir
     state: started
     enabled: yes

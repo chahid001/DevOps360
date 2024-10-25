@@ -10,7 +10,9 @@
     src: https://download.sonatype.com/nexus/3/latest-unix.tar.gz
     dest: /opt
     remote_src: yes
-    creates: /opt/nexus
+
+- name: Create Nexus directory
+  shell: mv /opt/nexus-3.* /opt/nexus
 
 - name: Create Nexus user
   user: 
@@ -18,12 +20,22 @@
     system: yes
     shell: /usr/sbin/nologin
 
-- name: Set Ownership of Nexu directory
+- name: Set Ownership of Nexus directory
   file:
     path: /opt/nexus
     state: directory
+    recurse: yes
     owner: nexus
     group: nexus
-    mode: '0644'
+    mode: '0755'
+
+- name: Set Ownership of SonaType directory
+  file:
+    path: /opt/sonatype-work
+    state: directory
+    recurse: yes
+    owner: nexus
+    group: nexus
+    mode: '0755'
 
 
