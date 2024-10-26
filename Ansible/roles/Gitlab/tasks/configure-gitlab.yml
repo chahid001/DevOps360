@@ -1,4 +1,20 @@
 ---
+- name: Create cert directory for the user
+  file:
+    path: "/etc/gitlab/ssl"
+    state: directory
+    mode: '0755'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: Generate a self-signed certificate for Nexus
+  shell: |
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    -keyout /etc/gitlab/ssl/gitlab.devops360.org.key \
+    -out /etc/gitlab/ssl/gitlab.devops360.org.crt \
+    -subj "/C=MA/ST=RABAT/L=RABAT/O=DevOps360/OU=IT/CN=nexus.devops360.org"
+
+
 - name: Modify gitlab.rb for PostgreSQL settings
   lineinfile:
     path: /etc/gitlab/gitlab.rb
@@ -6,13 +22,17 @@
     line: "{{ item.key }} = '{{ item.value }}'"
     create: yes
   loop:
-    - { key: "external_url", value: "http://gitlab.devops360.org" }
     - { key: "gitlab_rails['db_adapter']", value: "postgresql" }
     - { key: "gitlab_rails['db_database']", value: "gitlab" }
     - { key: "gitlab_rails['db_host']", value: "{{ GITLAB_DB_IP }}" }
     - { key: "gitlab_rails['db_port']", value: 5432 }
     - { key: "gitlab_rails['db_username']", value: "{{ GITLAB_DB_USER }}" }
     - { key: "gitlab_rails['db_password']", value: "{{ GITLAB_DB_PASS }}" }
+    - { key: "nginx['enable']", value: "true" }
+    - { key: "nginx['redirect_http_to_https']", value: "true" }
+    - { key: "nginx['ssl_certificate']", value: "/etc/gitlab/ssl/gitlab.devops360.org.crt" }
+    - { key: "nginx['ssl_certificate_key']", value: "/etc/gitlab/ssl/gitlab.devops360.org.key" }
+    - { key: "nginx['ssl_protocols']", value: "TLSv1.2 TLSv1.3" }
 
 - name: Reconfigure GitLab
   command: gitlab-ctl reconfigure

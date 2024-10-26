@@ -18,9 +18,7 @@
     -keyout /home/user-cloud/cert/sonar.key \
     -out /home/user-cloud/cert/sonar.crt \
     -subj "/C=MA/ST=RABAT/L=RABAT/O=DevOps360/OU=IT/CN=sonarqube.devops360.org"
-  args:
-    creates: /home/user-cloud/cert/nexus.crt
-
+    
 - name: Add SonarQube config for NGINX
   copy:
     src: ./../templates/sonarqube-nginx.conf

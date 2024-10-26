@@ -18,8 +18,6 @@
     -keyout /home/user-cloud/cert/nexus.key \
     -out /home/user-cloud/cert/nexus.crt \
     -subj "/C=MA/ST=RABAT/L=RABAT/O=DevOps360/OU=IT/CN=nexus.devops360.org"
-  args:
-    creates: /home/user-cloud/cert/nexus.crt
 
 - name: Add Nexus config for NGINX
   copy:

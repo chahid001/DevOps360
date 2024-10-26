@@ -15,3 +15,5 @@
   apt:
     name: gitlab-ee
     state: present
+  environment:
+    EXTERNAL_URL: "https://gitlab.devops360.org"
