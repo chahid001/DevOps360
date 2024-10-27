@@ -8,4 +8,4 @@ spec:
     - port: {{ .Values.service.port }}
       targetPort: {{ .Values.service.targetPort }}
   selector:
-    app: {{ include "swiggy-frontend.name" . }}-blue
+    app: {{ include "swiggy-frontend.name" . }}
