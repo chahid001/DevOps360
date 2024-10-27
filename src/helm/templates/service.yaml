@@ -6,8 +6,9 @@ metadata:
     app: {{ include "swiggy-frontend.fullname" . }}
 spec:
   selector:
-    app: {{ include "swiggy-frontend.fullname" . }}-{{ .Values.current }}
-  type: NodePort
+    app: {{ include "swiggy-frontend.fullname" . }}
+    version: {{ .Values.current }}
+  type: {{ .Values.service.type }}
   ports:
     - protocol: TCP
       port: 80
