@@ -1,22 +1,22 @@
-replicaCount: 1
-
+# Common settings
 image:
-  repository: nexus.devops360.org:9002/web-app/swiggy/frontend
+  repository: soufiane01/swiggy
+  tag: "latest"
   pullPolicy: IfNotPresent
 
 blue:
-  tag: "v1.1.0.0"
+  enabled: true
+  replicas: 2
+  port: 3000
 
 green:
-  tag: "develop"
+  enabled: true
+  replicas: 2
+  port: 3000
 
 service:
-  enabled: true
-  name: swiggy-frontend
+  targetDeployment: blue  
   type: NodePort
-  port: 3000
+  port: 80
   targetPort: 3000
-  nodePort: 30010
-
-resources: {}
-
+  NodePort: 30010

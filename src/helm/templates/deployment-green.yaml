@@ -2,18 +2,25 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "swiggy-frontend.fullname" . }}-green
+  labels:
+    app: {{ include "swiggy-frontend.fullname" . }}
+    version: green
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.green.replicas }}
   selector:
     matchLabels:
-      app: {{ include "swiggy-frontend.name" . }}-green
+      app: {{ include "swiggy-frontend.fullname" . }}
+      version: green
   template:
     metadata:
       labels:
-        app: {{ include "swiggy-frontend.name" . }}-green
+        app: {{ include "swiggy-frontend.fullname" . }}
+        version: green
     spec:
       containers:
-        - name: {{ include "swiggy-frontend.name" . }}
-          image: "{{ .Values.image.repository }}:{{ .Values.green.tag }}"
+        - name: app
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: {{ .Values.service.targetPort }}
+            - containerPort: {{ .Values.green.port }}
+
