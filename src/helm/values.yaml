@@ -5,12 +5,12 @@ image:
   pullPolicy: IfNotPresent
 
 blue:
-  enabled: true
+  enabled: false
   replicas: 2
   port: 3000
 
 green:
-  enabled: true
+  enabled: false
   replicas: 2
   port: 3000
 
