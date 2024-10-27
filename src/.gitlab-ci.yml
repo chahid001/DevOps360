@@ -1,9 +1,152 @@
 stages: 
-  - prebuild # Version provisoning X.x.p.RB
-  - sast # SonarQube
-  - sca # Dependency Check
-  - build # Docker build
-  - cis # Trivy Image Scanning
-  - publish # Publish Image to Nexus
+  - prebuild 
+  - sast 
+  - sca 
+  - build 
+  - publish 
+  - cleanup
+  - cis 
   - deploy_green # Deploy in staging to Green Server for Testing
   - deploy_blue # Deploy in prod branch to Blue Server
+
+set_version:
+  stage: prebuild
+  tags:
+    - docker_runner
+  script:
+    - |
+      if [[ "$CI_COMMIT_TAG" != "" ]]; then
+        VERSION="$CI_COMMIT_TAG"  
+      else
+        VERSION="develop"  
+      fi
+      echo "VERSION=$VERSION" > version.env
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+      when: always
+    - if: '$CI_COMMIT_BRANCH == "develop" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "staging" && $CI_COMMIT_TAG'
+      when: always
+    - if: '$CI_COMMIT_BRANCH == "staging" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main" && $CI_COMMIT_TAG'
+      when: always
+  artifacts:
+    paths:
+      - version.env
+
+# sonarqube:
+#   stage: sast
+#   needs:
+#     - set_version
+#   image: nexus.devops360.org:9001/cicd-tools/sast/sonar-scanner:11.1
+#   tags:
+#     - docker_runner
+#   before_script:
+#     - source version.env
+#   script:
+#     - |
+#       sonar-scanner \
+#         -Dsonar.projectVersion=$VERSION \
+#         -Dsonar.projectKey=Swiggy-Frontend \
+#         -Dsonar.sources=. \
+#         -Dsonar.host.url=http://sonarqube.devops360.org \
+#         -Dsonar.login=$SONAR_TOKEN
+#   retry: 2 
+
+# secret_detection:
+#   stage: sast
+#   image: 
+#     name: nexus.devops360.org:9001/cicd-tools/sast/gitleaks:v8.21.1
+#     entrypoint: [""]
+#   tags:
+#     - docker_runner
+#   script:
+#     - gitleaks detect --source . --report-format json --report-path gitleaks_report.json
+#   artifacts:
+#     paths:
+#       - gitleaks_report.json
+#   retry: 2
+
+# dependency_check:
+#   stage: sca
+#   needs:
+#     - set_version
+#   image: 
+#     name: nexus.devops360.org:9001/cicd-tools/sca/dependency-check:latest
+#     entrypoint: [""]
+#   tags:
+#     - docker_runner
+#   before_script:
+#     - export PROJECT="Swiggy-Frontend-${VERSION}"  
+#   script:
+#     - /usr/share/dependency-check/bin/dependency-check.sh --project $PROJECT --scan . --format "HTML"
+#     - ls
+#   artifacts:
+#     paths:
+#       - dependency-check-report.html
+#   retry: 2
+
+build:
+  stage: build
+  needs:
+    - set_version
+    # - sonarqube
+    # - dependency_check
+    # - secret_detection
+  tags:
+    - shell_runner
+  before_script:
+    - source version.env
+  script:
+    - docker build -t nexus.devops360.org:9002/web-app/swiggy/frontend:$VERSION .
+  retry: 2
+
+publish:
+  stage: publish
+  needs:
+    - set_version
+    - build
+  tags:
+    - shell_runner
+  before_script:
+    - source version.env
+    - echo "$CI_REGISTRY_PASSWORD" | docker login nexus.devops360.org:9002 -u "$CI_REGISTRY_USER" --password-stdin
+  script:
+    - docker push nexus.devops360.org:9002/web-app/swiggy/frontend:$VERSION
+
+cleanup:
+  stage: cleanup
+  needs:
+    - set_version
+    - publish
+  tags:
+    - shell_runner
+  before_script: 
+    - source version.env
+  script:
+    - docker rmi nexus.devops360.org:9002/web-app/swiggy/frontend:$VERSION
+
+
+# image_scanner:
+#   stage: cis
+#   needs:
+#     - set_version
+#     - cleanup
+#   image: 
+#     name: nexus.devops360.org:9001/cicd-tools/sast/trivy:latest
+#     entrypoint: [""]
+#   tags:
+#     - docker_runner
+#   variables:
+#     TRIVY_INSECURE: "true"
+#   before_script:
+#     - source version.env
+#   script: # || true -> for testing -> remove it and add --exit-code 1 for failing the job if severity is high.
+#     - trivy image --severity HIGH,CRITICAL --format json -o trivy_report.json nexus.devops360.org:9002/web-app/swiggy/frontend:$VERSION || true
+#   artifacts:
+#     paths:
+#       - trivy_report.json
+
+
+# deploy_staging:
+  
+
+  
