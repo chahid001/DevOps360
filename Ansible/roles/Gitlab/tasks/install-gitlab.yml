@@ -16,4 +16,4 @@
     name: gitlab-ee
     state: present
   environment:
-    EXTERNAL_URL: "https://gitlab.devops360.org"
+    EXTERNAL_URL: "http://gitlab.devops360.org" ## replace http to https for ssl

@@ -62,7 +62,7 @@ export function createVPN(vpc: Network) {
         allows: [
             {
                 protocol: "tcp",
-                ports: ["80", "443"],
+                ports: ["80", "443", "9001", "9002"],
             },
         ],
         sourceRanges: ["10.0.0.0/16", "172.31.1.0/24"],

@@ -1,15 +1,15 @@
 ---
-- hosts: dns
-  user: user-cloud
-  become: true
-  roles:
-    - DNS-Server
+# - hosts: dns
+#   user: user-cloud
+#   become: true
+#   roles:
+#     - DNS-Server
 
-- hosts: runner
-  user: user-cloud
-  become: true
-  roles:
-    - Docker
+# - hosts: runner
+#   user: user-cloud
+#   become: true
+#   roles:
+#     - Docker
 
 - hosts: nexus
   user: user-cloud
@@ -17,23 +17,23 @@
   roles:
     - Nexus
 
-- hosts: sonar
-  user: user-cloud
-  become: true
-  roles:
-    - SonarQube
+# - hosts: sonar
+#   user: user-cloud
+#   become: true
+#   roles:
+#     - SonarQube
 
-- hosts: gitlab
-  user: user-cloud
-  become: true
-  roles:
-    - Gitlab
+# - hosts: gitlab
+#   user: user-cloud
+#   become: true
+#   roles:
+#     - Gitlab
 
-- hosts: private
-  user: user-cloud
-  become: true
-  roles:
-    - DNS-Set
+# - hosts: private
+#   user: user-cloud
+#   become: true
+#   roles:
+#     - DNS-Set
 
 
 
