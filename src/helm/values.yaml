@@ -1,14 +1,14 @@
 blue:
   replicas: 2
   repository: soufiane01/swiggy
-  tag: ""
+  tag: v1
   pullPolicy: IfNotPresent
   port: 3000
 
 green:
   replicas: 2
   repository: soufiane01/swiggy
-  tag: ""
+  tag: v1
   pullPolicy: IfNotPresent
   port: 3000
 
