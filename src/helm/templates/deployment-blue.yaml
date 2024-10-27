@@ -1,3 +1,4 @@
+{{- if .Values.blue.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -23,3 +24,4 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.blue.port }}
+{{- end }}
