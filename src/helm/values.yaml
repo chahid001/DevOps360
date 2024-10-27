@@ -3,7 +3,12 @@ replicaCount: 1
 image:
   repository: nexus.devops360.org:9002/web-app/swiggy/frontend
   pullPolicy: IfNotPresent
-  tag: "latest"
+
+blue:
+  tag: "v1.1.0.0"
+
+green:
+  tag: "develop"
 
 service:
   enabled: true
@@ -14,3 +19,4 @@ service:
   nodePort: 30010
 
 resources: {}
+
