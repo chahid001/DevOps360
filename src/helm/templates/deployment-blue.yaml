@@ -1,4 +1,3 @@
-{{- if .Values.blue.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -20,8 +19,8 @@ spec:
     spec:
       containers:
         - name: app
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ .Values.blue.repository }}:{{ .Values.blue.tag }}"
+          imagePullPolicy: {{ .Values.blue.pullPolicy }}
           ports:
             - containerPort: {{ .Values.blue.port }}
-{{- end }}
+

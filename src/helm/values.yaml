@@ -1,22 +1,15 @@
-createService: false
-image:
-  repository: soufiane01/swiggy
-  tag: "latest"
-  pullPolicy: IfNotPresent
-
 blue:
-  enabled: false
   replicas: 2
+  repository: soufiane01/swiggy
+  tag: ""
+  pullPolicy: IfNotPresent
   port: 3000
 
 green:
-  enabled: false
   replicas: 2
+  repository: soufiane01/swiggy
+  tag: ""
+  pullPolicy: IfNotPresent
   port: 3000
 
-service:
-  targetDeployment: blue  
-  type: NodePort
-  port: 80
-  targetPort: 3000
-  nodePort: 30010
+current: blue

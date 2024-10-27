@@ -1,4 +1,3 @@
-{{- if .Values.createService }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -7,12 +6,10 @@ metadata:
     app: {{ include "swiggy-frontend.fullname" . }}
 spec:
   selector:
-    app: {{ include "swiggy-frontend.fullname" . }}
-    version: {{ .Values.service.targetDeployment }}
-  type: {{ .Values.service.type }}
+    app: {{ include "swiggy-frontend.fullname" . }}-{{ .Values.current }}
+  type: NodePort
   ports:
     - protocol: TCP
-      port: {{ .Values.service.port }}
-      targetPort: {{ .Values.service.targetPort }}
-      nodePort: {{ .Values.service.nodePort }}
-{{- end }}
+      port: 80
+      targetPort: 3000
+      nodePort: 30010
