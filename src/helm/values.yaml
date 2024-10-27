@@ -1,4 +1,4 @@
-# Common settings
+createService: false
 image:
   repository: soufiane01/swiggy
   tag: "latest"
