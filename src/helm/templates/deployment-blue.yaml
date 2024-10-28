@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: "{{ .Values.blue.repository }}:{{ .Values.blue.tag | default.Chart.AppVersion }}"
+          image: "{{ .Values.blue.repository }}:{{ .Values.blue.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.blue.pullPolicy }}
           ports:
             - containerPort: {{ .Values.blue.port }}
