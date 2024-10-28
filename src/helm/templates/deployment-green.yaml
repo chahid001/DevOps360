@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: swiggy
-          image: "{{ .Values.green.repository }}:{{ .Values.green.tag }}"
+          image: "{{ .Values.green.repository }}:{{ .Values.green.tag | default.Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.green.pullPolicy }}
           ports:
             - containerPort: {{ .Values.green.port }}
