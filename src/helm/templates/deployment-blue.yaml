@@ -5,7 +5,7 @@ metadata:
   labels:
     app: {{ include "swiggy-frontend.fullname" . }}-blue
 spec:
-  replicas: {{ .Values.blue.replicas }}
+  replicas: {{ .Values.blueImage.replicas }}
   selector:
     matchLabels:
       app: {{ include "swiggy-frontend.fullname" . }}-blue
@@ -16,8 +16,8 @@ spec:
     spec:
       containers:
         - name: app
-          image: "{{ .Values.blue.repository }}:{{ .Values.blue.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.blue.pullPolicy }}
+          image: "{{ .Values.blueImage.repository }}:{{ .Values.blueImage.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.blueImage.pullPolicy }}
           ports:
-            - containerPort: {{ .Values.blue.port }}
+            - containerPort: {{ .Values.blueImage.port }}
 
