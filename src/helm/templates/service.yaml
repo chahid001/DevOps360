@@ -8,7 +8,7 @@ spec:
   selector:
     app: {{ include "swiggy-frontend.fullname" . }}
     version: {{ .Values.current }}
-  type: {{ .Values.service.type }}
+  type: NodePort
   ports:
     - protocol: TCP
       port: 80
