@@ -12,8 +12,7 @@ spec:
   template:
     metadata:
       labels:
-        app: {{ include "swiggy-frontend.fullname" . }}
-        version: green
+        app: {{ include "swiggy-frontend.fullname" . }}-green
     spec:
       containers:
         - name: swiggy
