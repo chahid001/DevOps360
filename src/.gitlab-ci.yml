@@ -1,96 +1,103 @@
-stages: 
-  - prebuild 
+stages:
+  - set_version
   - sast 
   - sca 
   - build 
   - publish 
   - cleanup
   - cis 
-  - deploy_green # Deploy in staging to Green Server for Testing
-  - deploy_blue # Deploy in prod branch to Blue Server
+  - staging
+  - production
+
+variables:
+  VERSION: ""
+  ENVIRONMENT: ""
 
 set_version:
-  stage: prebuild
-  tags:
-    - docker_runner
+  stage: set_version
   script:
     - |
-      if [[ "$CI_COMMIT_TAG" != "" ]]; then
-        VERSION="$CI_COMMIT_TAG"  
+      # Check if we are on the correct branches
+      if [[ "$CI_COMMIT_BRANCH" =~ ^(develop|staging|main)$ ]]; then
+        # If VERSION is empty, set it to branch name with a timestamp
+        if [[ -z "$VERSION" ]]; then
+          TIMESTAMP=$(date +"%Y%m%d%H%M%S")  # Format: YYYYMMDDHHMMSS
+          VERSION="${CI_COMMIT_BRANCH}-${TIMESTAMP}"  # e.g., develop-20231028123456
+        fi
       else
-        VERSION="develop"  
+        echo "Error: Only 'develop', 'staging', and 'main' branches are allowed."
+        exit 1
       fi
+      echo "ver: $VERSION"
       echo "VERSION=$VERSION" > version.env
   rules:
     - if: '$CI_COMMIT_BRANCH == "develop"'
-      when: always
-    - if: '$CI_COMMIT_BRANCH == "develop" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "staging" && $CI_COMMIT_TAG'
-      when: always
-    - if: '$CI_COMMIT_BRANCH == "staging" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main" && $CI_COMMIT_TAG'
-      when: always
+    - if: '$CI_COMMIT_BRANCH == "staging" || ($CI_COMMIT_BRANCH == "staging" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME == "develop")'
+    - if: '$CI_COMMIT_BRANCH == "main" || ($CI_COMMIT_BRANCH == "main" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME == "staging")'
   artifacts:
     paths:
       - version.env
 
-# sonarqube:
-#   stage: sast
-#   needs:
-#     - set_version
-#   image: nexus.devops360.org:9001/cicd-tools/sast/sonar-scanner:11.1
-#   tags:
-#     - docker_runner
-#   before_script:
-#     - source version.env
-#   script:
-#     - |
-#       sonar-scanner \
-#         -Dsonar.projectVersion=$VERSION \
-#         -Dsonar.projectKey=Swiggy-Frontend \
-#         -Dsonar.sources=. \
-#         -Dsonar.host.url=http://sonarqube.devops360.org \
-#         -Dsonar.login=$SONAR_TOKEN
-#   retry: 2 
 
-# secret_detection:
-#   stage: sast
-#   image: 
-#     name: nexus.devops360.org:9001/cicd-tools/sast/gitleaks:v8.21.1
-#     entrypoint: [""]
-#   tags:
-#     - docker_runner
-#   script:
-#     - gitleaks detect --source . --report-format json --report-path gitleaks_report.json
-#   artifacts:
-#     paths:
-#       - gitleaks_report.json
-#   retry: 2
+sonarqube:
+  stage: sast
+  needs:
+    - set_version
+  image: nexus.devops360.org:9001/cicd-tools/sast/sonar-scanner:11.1
+  tags:
+    - docker_runner
+  before_script:
+    - source version.env
+  script:
+    - |
+      sonar-scanner \
+        -Dsonar.projectVersion=$VERSION \
+        -Dsonar.projectKey=Swiggy-Frontend \
+        -Dsonar.sources=. \
+        -Dsonar.host.url=http://sonarqube.devops360.org \
+        -Dsonar.login=$SONAR_TOKEN
+  retry: 2 
 
-# dependency_check:
-#   stage: sca
-#   needs:
-#     - set_version
-#   image: 
-#     name: nexus.devops360.org:9001/cicd-tools/sca/dependency-check:latest
-#     entrypoint: [""]
-#   tags:
-#     - docker_runner
-#   before_script:
-#     - export PROJECT="Swiggy-Frontend-${VERSION}"  
-#   script:
-#     - /usr/share/dependency-check/bin/dependency-check.sh --project $PROJECT --scan . --format "HTML"
-#     - ls
-#   artifacts:
-#     paths:
-#       - dependency-check-report.html
-#   retry: 2
+secret_detection:
+  stage: sast
+  image: 
+    name: nexus.devops360.org:9001/cicd-tools/sast/gitleaks:v8.21.1
+    entrypoint: [""]
+  tags:
+    - docker_runner
+  script:
+    - gitleaks detect --source . --report-format json --report-path gitleaks_report.json
+  artifacts:
+    paths:
+      - gitleaks_report.json
+  retry: 2
+
+dependency_check:
+  stage: sca
+  needs:
+    - set_version
+  image: 
+    name: nexus.devops360.org:9001/cicd-tools/sca/dependency-check:latest
+    entrypoint: [""]
+  tags:
+    - docker_runner
+  before_script:
+    - source version.env
+    - export PROJECT="Swiggy-Frontend-${VERSION}"  
+  script:
+    - /usr/share/dependency-check/bin/dependency-check.sh --project $PROJECT --scan . --format "HTML"
+  artifacts:
+    paths:
+      - dependency-check-report.html
+  retry: 2
 
 build:
   stage: build
   needs:
     - set_version
-    # - sonarqube
-    # - dependency_check
-    # - secret_detection
+    - sonarqube
+    - dependency_check
+    - secret_detection
   tags:
     - shell_runner
   before_script:
@@ -125,28 +132,84 @@ cleanup:
     - docker rmi nexus.devops360.org:9002/web-app/swiggy/frontend:$VERSION
 
 
-# image_scanner:
-#   stage: cis
-#   needs:
-#     - set_version
-#     - cleanup
-#   image: 
-#     name: nexus.devops360.org:9001/cicd-tools/sast/trivy:latest
-#     entrypoint: [""]
-#   tags:
-#     - docker_runner
-#   variables:
-#     TRIVY_INSECURE: "true"
-#   before_script:
-#     - source version.env
-#   script: # || true -> for testing -> remove it and add --exit-code 1 for failing the job if severity is high.
-#     - trivy image --severity HIGH,CRITICAL --format json -o trivy_report.json nexus.devops360.org:9002/web-app/swiggy/frontend:$VERSION || true
-#   artifacts:
-#     paths:
-#       - trivy_report.json
+image_scanner:
+  stage: cis
+  needs:
+    - set_version
+    - cleanup
+  image: 
+    name: nexus.devops360.org:9001/cicd-tools/sast/trivy:latest
+    entrypoint: [""]
+  tags:
+    - docker_runner
+  variables:
+    TRIVY_INSECURE: "true"
+  before_script:
+    - source version.env
+  script: # || true -> for testing -> remove it and add --exit-code 1 for failing the job if severity is high.
+    - trivy image --severity HIGH,CRITICAL --format json -o trivy_report.json nexus.devops360.org:9002/web-app/swiggy/frontend:$VERSION || true
+  artifacts:
+    paths:
+      - trivy_report.json
+  
+staging_deploy:
+  stage: staging
+  needs: 
+    - set_version
+    - image_scanner
+  image: nexus.devops360.org:9001/cicd-tools/cloud/google-sdk:latest
+  tags:
+    - docker_runner
+  before_script:
+    - |
+      # Check if VERSION is in the correct format
+      if [[ ! "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        echo "Warning: Skipping staging deployment. VERSION must be in the format X.x.p.RB."
+        exit 0  # Exit without error to skip the job
+      fi
 
-
-# deploy_staging:
+      # Ensure ENVIRONMENT is specified and valid for staging and main
+      if [[ -z "$ENVIRONMENT" || ! "$ENVIRONMENT" =~ ^(blue|green)$ ]]; then
+        echo "Warning: Skipping staging deployment. ENVIRONMENT variable must be 'blue' or 'green'."
+        exit 0  # Exit without error to skip the job
+      fi
+  script:
+    - echo "Deploying to staging with version $VERSION and environment $ENVIRONMENT"
+    - gcloud auth activate-service-account --key-file=$GCP_KEY
+    - gcloud config set project $GCP_PROJECT_ID
+    - gcloud container clusters get-credentials $CLUSTER_NAME --region CLUSTER_REGION --project $GCP_PROJECT_ID
+    - helm upgrade --install swiggy-release ./helm --set ${ENVIRONMENT}.tag=$VERSION #Deploy app in the free env for testing
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "staging" || ($CI_COMMIT_BRANCH == "staging" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME == "develop")'
   
 
-  
+production_deploy:
+  stage: production
+  needs:
+    - set_version
+    - image_scanner
+  image: nexus.devops360.org:9001/cicd-tools/cloud/google-sdk:latest
+  tags:
+    - docker_runner
+  before_script:
+    - |
+      # Check if VERSION is in the correct format
+      if [[ ! "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        echo "Warning: Skipping production deployment. VERSION must be in the format X.x.p.RB."
+        exit 0  # Exit without error to skip the job
+      fi
+
+      # Ensure ENVIRONMENT is specified and valid for staging and main
+      if [[ -z "$ENVIRONMENT" || ! "$ENVIRONMENT" =~ ^(blue|green)$ ]]; then
+        echo "Warning: Skipping production deployment. ENVIRONMENT variable must be 'blue' or 'green'."
+        exit 0  # Exit without error to skip the job
+      fi
+  script:
+    - echo "Deploying to production with version $VERSION and environment $ENVIRONMENT"
+    - gcloud auth activate-service-account --key-file=$GCP_KEY
+    - gcloud config set project $GCP_PROJECT_ID
+    - gcloud container clusters get-credentials $CLUSTER_NAME --region CLUSTER_REGION --project $GCP_PROJECT_ID
+    - helm upgrade --install swiggy-release ./helm --set ${ENVIRONMENT}.tag=$VERSION --set current=$ENVIRONMENT #Switch service to point on new version ENV
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" || ($CI_COMMIT_BRANCH == "main" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME == "staging")'
+
