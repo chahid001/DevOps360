@@ -3,8 +3,7 @@ kind: Deployment
 metadata:
   name: {{ include "swiggy-frontend.fullname" . }}-green
   labels:
-    app: {{ include "swiggy-frontend.fullname" . }}
-    version: green
+    app: {{ include "swiggy-frontend.fullname" . }}-green
 spec:
   replicas: {{ .Values.green.replicas }}
   selector:
