@@ -9,8 +9,7 @@ spec:
   replicas: {{ .Values.green.replicas }}
   selector:
     matchLabels:
-      app: {{ include "swiggy-frontend.fullname" . }}
-      version: green
+      app: {{ include "swiggy-frontend.fullname" . }}-green
   template:
     metadata:
       labels:
