@@ -1,11 +1,11 @@
-blueImage:
+blue:
   replicas: 2
   repository: soufiane01/swiggy
   tag: ""
   pullPolicy: IfNotPresent
   port: 3000
 
-greenImage:
+green:
   replicas: 2
   repository: soufiane01/swiggy
   tag: ""

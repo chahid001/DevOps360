@@ -4,8 +4,6 @@ metadata:
   name: {{ include "swiggy-frontend.fullname" . }}-green
   labels:
     app: {{ include "swiggy-frontend.fullname" . }}-green
-  annotations:
-    deployment.kubernetes.io/revision: "green"  
 spec:
   replicas: {{ .Values.greenImage.replicas }}
   selector:

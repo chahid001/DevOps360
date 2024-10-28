@@ -4,8 +4,6 @@ metadata:
   name: {{ include "swiggy-frontend.fullname" . }}-blue
   labels:
     app: {{ include "swiggy-frontend.fullname" . }}-blue
-  annotations:
-    deployment.kubernetes.io/revision: "blue" 
 spec:
   replicas: {{ .Values.blueImage.replicas }}
   selector:
@@ -22,3 +20,4 @@ spec:
           imagePullPolicy: {{ .Values.blueImage.pullPolicy }}
           ports:
             - containerPort: {{ .Values.blueImage.port }}
+
