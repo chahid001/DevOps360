@@ -19,9 +19,10 @@ dotenv.config();
 const vpc = createVPC("vpc-global-devops");
 //Create Jump Server
 createBastion(vpc);
-const peer = peerVPC(vpc);
-const DNSIP = createDNS(vpc);
+const peer = peerVPC(vpc); // -> Create peering for databases
+createDNS(vpc); // -> create Internal DNS server
 
+// Services for the infra
 const services = [
     { 
         name: "gitlab", 
@@ -58,9 +59,10 @@ const services = [
     },
 ]
 
-const subnets_eu: Subnetwork[] = [];
-const subnets_us: Subnetwork[] = [];
+const subnets_eu: Subnetwork[] = []; // -> Subnets in europe regions
+const subnets_us: Subnetwork[] = []; // -> Subnets in us regions
 
+// Creation of services VM's
 services.forEach(service => {
 
     const subnet = createSubnet(vpc, `${service.name}-subnet`, service.region, service.subnetCIDR);
@@ -102,7 +104,8 @@ services.forEach(service => {
     const VM = createVM(subnet, service.name, service.zone, service.machine, "172.30.1.14");
 });
 
+// Creation of NAT for each region Subnet
 createNatGateway("eu", subnets_eu);
 createNatGateway("us", subnets_us);
 
-createVPN(vpc);
+createVPN(vpc); // -> Creation of VPN Server (OpenVPN)
