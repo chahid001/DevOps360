@@ -9,19 +9,37 @@
   
 1. **🔒 OpenVPN**  
 2. **🌐 Internal DNS Server**  
-3. **🔗 Proxy Server**  
+3. **🔗 Nginx Proxy**: Facilitates access to services on port 80 instead of their default ports.  
 4. **⚙️ Kernel Settings Optimization**  
 5. **📊 Database Settings Tuning**  
 6. **🎛️ Helm & Blue-Green Deployment**  
 7. **🌩️ Pulumi GCP Deploy with TypeScript**  
   
 ## ⚙️ **Architecture Overview**  
-   
-1. **🔒 VPN**: Internal traffic is secured with OpenVPN.  
-2. **🌐 Internal DNS**: Ensures fast and secure DNS resolution for internal services.  
-3. **🔗 Proxy**: Provides centralized routing and security control between services.  
-4. **🐳 Kubernetes**: Manages containers and workloads, with deployments handled through Helm.  
-5. **🔄 Blue-Green Deployment**: Maintains high availability during application updates, allowing traffic to switch between two environments (blue-green) without downtime.  
+
+1. **🔒 OpenVPN**: Internal traffic is secured with OpenVPN, deployed in a public subnet in the US-Central1 region (Zone C), enabling secure remote access for team members. This solution was chosen over CloudVPN due to the need for a road-warrior configuration (client-to-gateway), which is not supported by GCP.
+
+2. **🌐 Internal DNS**: An internal DNS server using dnsmasq is hosted in a private subnet in the US-Central1 region (Zone B). This setup ensures fast and secure DNS resolution for internal services. Initially considered CloudDNS, it was not viable due to VPN connectivity issues.
+
+3. **🌃 Global VPC and Subnet Architecture**:  
+   - A global VPC houses four private subnets for various services, each with dedicated routers and NAT configurations for secure internet access:  
+     - GitLab CE server located in Europe-Southwest1 (Zone A).  
+     - GitLab runners (with Docker) in Europe-Southwest1 (Zone B).  
+     - Nexus repository server in US-West1 (Zone A).  
+     - SonarQube server in US-West1 (Zone B).  
+   - Each subnet is connected to its respective router and NAT, utilizing the same BGP AS number for internal communication.
+
+4. **🔄 Firewall Rules**: Firewalls are configured for SSH access to private servers from a bastion host in a public subnet in US-Central1 (Zone A). Additionally, inbound traffic rules allow access to Nexus, SonarQube, and GitLab via ports 80 and 443, with Nexus also supporting ports 9001 and 9002 for CI/CD tool and web app repositories, and allowing DNS Traffic to port 53 in both **TCP** and **UDP**.
+
+5. **🗄️ PostgreSQL Database Management**:  
+   - Two PostgreSQL databases (one for GitLab and one for SonarQube) are created within a reserved IP range for Google-managed services.  
+   - Internal connectivity is facilitated through VPC peering, with no public IPs required, enhancing security.  
+   - Configurations include increased `max_locks_per_transaction` to 128 and `max_connections` to 200 to accommodate high transaction volumes.
+
+6. **📊 Kernel & Database Optimization**: Kernel settings are optimized for performance, particularly for services like SonarQube, which utilizes Elasticsearch. Each database has specific firewall rules allowing internal traffic on necessary ports (5432 for PostgreSQL) to ensure smooth communication between services.
+
+7. **🎛️ Kubernetes**: Managed Kubernetes deployments are handled via Helm, allowing efficient container orchestration and management of workloads. The infrastructure supports Blue-Green deployment strategies to ensure high availability during application updates, allowing seamless transitions between environments without downtime.
+
   
 ![Architecture Diagram](https://github.com/chahid001/DevOps360/blob/main/assets/archi.png)  
   
