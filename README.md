@@ -186,7 +186,7 @@ sudo ./openvpn-install.sh
    sudo docker exec docker_runner gitlab-runner register \
    --non-interactive \
    --url "http://gitlab.devops360.org" \
-   --registration-token "au2dPtQYCiUqx1QQp9x7" \
+   --registration-token "" \
    --executor "docker" \
    --description "Runner for docker" \
    --tag-list "docker_runner" \
@@ -204,7 +204,7 @@ sudo ./openvpn-install.sh
    sudo docker exec shell_runner gitlab-runner register \
    --non-interactive \
    --url "http://gitlab.devops360.org" \
-   --registration-token "au2dPtQYCiUqx1QQp9x7" \
+   --registration-token "" \
    --executor "shell" \
    --description "Runner for shell" \
    --tag-list "shell_runner"
