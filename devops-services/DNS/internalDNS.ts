@@ -27,7 +27,7 @@ export function createDNS(vpc: Network) {
 
         name: "dns-server",
         machineType: "e2-micro",
-        zone: "us-central1-c",
+        zone: "us-central1-b",
         bootDisk: {
             initializeParams: {
                 image: "ubuntu-os-cloud/ubuntu-2204-lts",
