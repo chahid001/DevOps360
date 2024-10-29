@@ -44,6 +44,7 @@ This project implements a robust infrastructure with OpenVPN, an internal DNS se
 - [Installing Helm in Google Kubernetes Engine](https://medium.com/google-cloud/installing-helm-in-google-kubernetes-engine-7f07f43c536e)  
   
 📝 **Workflow & Branching**  
+
 ![Workflow Diagram](https://github.com/chahid001/DevOps360/blob/main/assets/workflow.png)
 ### CI/CD Workflow and Branch Strategy
 1. **Develop Branch**:  
@@ -74,22 +75,22 @@ This project implements a robust infrastructure with OpenVPN, an internal DNS se
 2. In devops-services directory, add appropriate Variables to .env(Check types/end.d.ts) and deploy GCP infra:
 
 ```bash  
-   pulumi up  
+pulumi up  
 ```  
 
 3. Check Ansible and add appropriate values to Inventories/host.ini & defaults/main.yml in all Roles.
 
 ```bash  
-   ansible-playbook playbook.yml -i Inventories/hosts.ini --private-key PRIVATE_KEY
+ansible-playbook playbook.yml -i Inventories/hosts.ini --private-key PRIVATE_KEY
 ```  
 
 4. SSH to VPN server, and past the following commands:
 
 ```bash  
-    sudo apt update
-    curl -O https://raw.githubusercontent.com/angristan/openvpn-install/master/openvpn-install.sh
-    chmod +x openvpn-install.sh
-    sudo ./openvpn-install.sh
+sudo apt update
+curl -O https://raw.githubusercontent.com/angristan/openvpn-install/master/openvpn-install.sh
+chmod +x openvpn-install.sh
+sudo ./openvpn-install.sh
 ```  
 **NB.: JUST KEEP STUCK WITH DEFAULT SETTING. FOR DNS, CHOOSE CUSTOM (13) AND ADD DNS INTERNAL SERVER IP**
 
@@ -100,18 +101,18 @@ This project implements a robust infrastructure with OpenVPN, an internal DNS se
    - On the **GitLab Runner** server, added Nexus registry to the **Docker daemon config** to allow insecure connections to **ports 9001** and **9002** for pushing images. 
    Update `/etc/docker/daemon.json` as follows:
    ```jsx
-        {
-          "insecure-registries": [
-            "nexus.devops360.org:9001",
-            "nexus.devops360.org:9002"
-          ]
-        }
+   {
+     "insecure-registries": [
+       "nexus.devops360.org:9001",
+       "nexus.devops360.org:9002"
+     ]
+   }
    ```  
    Then run:
 
    ```bash
-        sudo systemctl daemon-reload
-        sudo systemctl restart docker
+   sudo systemctl daemon-reload
+   sudo systemctl restart docker
    ```     
 
 6. **Security Group Setup**  
@@ -127,56 +128,61 @@ This project implements a robust infrastructure with OpenVPN, an internal DNS se
    - **SAST**: SonarQube Scanner  
    - **DAST**: OWASP ZAP, OWASP Dependency Check  
    - **SCA**: Gitleaks, Trivy Scanner  
-   - **CIS**: Google SDK (GCP), Trivy (custom GCP image with Helm installed)
+   - **CIS**: Trivy
+   - **Google SDK (GCP)**: Custom GCP image with Helm installed
    
    Custom **GCP image** Dockerfile example:
    ```docker
-        FROM google/cloud-sdk:latest
-        # Install necessary packages
-        RUN apt-get update && apt-get install -y curl && apt-get clean && rm -rf /var/lib/apt/lists/*
-        # Install Helm
-        RUN curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+   FROM google/cloud-sdk:latest
+   # Install necessary packages
+   RUN apt-get update && apt-get install -y curl && apt-get clean && rm -rf /var/lib/apt/lists/*
+   # Install Helm
+   RUN curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
    ```
 
 7. **Runner Setup**  
    - Deployed two types of **GitLab Runners**:  
      - **Docker Executor**: For containers, using `docker-in-docker` (dind).  
      - **Shell Executor**: For executing shell scripts.  
-   - Used a custom image based on `gitlab/gitlab-runner:latest` with Docker installed.  
+   - Used a custom image based on `gitlab/gitlab-runner:latest` with Docker installed.
+   ```docker
+   FROM gitlab/gitlab-runner:latest
+   RUN apt-get update && apt-get install -y docker.io
+   ``` 
 
    Docker Runner setup:
    ```bash
-        sudo docker run -d --name docker_runner --restart always \
-        -v /opt/gitlab-runner:/etc/gitlab-runner \
-        -v /var/run/docker.sock:/var/run/docker.sock:ro \
-        -v /etc/docker/daemon.json:/etc/docker/daemon.json:ro \
-        gitlab-runner-dood:latest
+   sudo docker run -d --name docker_runner --restart always \
+   -v /opt/gitlab-runner:/etc/gitlab-runner \
+   -v /var/run/docker.sock:/var/run/docker.sock:ro \
+   -v /etc/docker/daemon.json:/etc/docker/daemon.json:ro \
+   gitlab-runner-dood:latest
 
-        sudo docker exec docker_runner gitlab-runner register \
-        --non-interactive \
-        --url "http://gitlab.devops360.org" \
-        --registration-token "au2dPtQYCiUqx1QQp9x7" \
-        --executor "docker" \
-        --description "Runner for docker" \
-        --tag-list "docker_runner" \
-        --docker-image debian:latest
+   sudo docker exec docker_runner gitlab-runner register \
+   --non-interactive \
+   --url "http://gitlab.devops360.org" \
+   --registration-token "au2dPtQYCiUqx1QQp9x7" \
+   --executor "docker" \
+   --description "Runner for docker" \
+   --tag-list "docker_runner" \
+   --docker-image debian:latest
    ```
 
    Shell Runner setup:
    ```bash
-        sudo docker run -d --name shell_runner --restart always \
-        -v /opt/gitlab-runner:/etc/gitlab-runner \
-        -v /var/run/docker.sock:/var/run/docker.sock:ro \
-        -v /etc/docker/daemon.json:/etc/docker/daemon.json:ro \
-        gitlab-runner-dood:latest
+   sudo docker run -d --name shell_runner --restart always \
+   -v /opt/gitlab-runner:/etc/gitlab-runner \
+   -v /var/run/docker.sock:/var/run/docker.sock:ro \
+   -v /etc/docker/daemon.json:/etc/docker/daemon.json:ro \
+   gitlab-runner-dood:latest
 
-        sudo docker exec shell_runner gitlab-runner register \
-        --non-interactive \
-        --url "http://gitlab.devops360.org" \
-        --registration-token "au2dPtQYCiUqx1QQp9x7" \
-        --executor "shell" \
-        --description "Runner for shell" \
-        --tag-list "shell_runner"
+   sudo docker exec shell_runner gitlab-runner register \
+   --non-interactive \
+   --url "http://gitlab.devops360.org" \
+   --registration-token "au2dPtQYCiUqx1QQp9x7" \
+   --executor "shell" \
+   --description "Runner for shell" \
+   --tag-list "shell_runner"
    ```
 
    After registering both runners, they were ready for **continuous integration**.
@@ -188,4 +194,3 @@ This project implements a robust infrastructure with OpenVPN, an internal DNS se
 9. **CI/CD Pipeline & Blue-Green Deployment**  
    - Created a pipeline for **DevSecOps practices** in GitLab, automating **SAST**, **DAST**, **SCA**, and **CIS** scans using the tools configured in Nexus.  
    - Implemented a **Blue-Green deployment strategy** to ensure zero-downtime during updates, by deploying new versions alongside the current version, testing, and then switching traffic to the new version once it's verified.  
-
