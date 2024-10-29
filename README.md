@@ -1,39 +1,41 @@
-# 🌐 **DevOps360: Comprehensive GCP Cloud Infrastructure Setup with DevSecOps practices, Gitlab CICD pipeline, workflow, Helm & Blue-Green Deployment**  
-  
+ # 🌐 **DevOps360: Optimized GCP Cloud Infrastructure with Enhanced DevSecOps Practices and Automated CI/CD Pipeline**
+
 🚀 **Overview**  
-This project implements a robust infrastructure with OpenVPN, an internal DNS server, a proxy server, and Kubernetes deployments managed via Helm. We leverage a Blue-Green deployment strategy for seamless application upgrades, ensuring zero downtime. Kernel and database optimizations enhance system performance, while the CI/CD pipeline is powered by GitLab for automated testing and deployment.  
-  
+DevOps360 establishes a cutting-edge cloud infrastructure on Google Cloud Platform (GCP) that integrates robust security and efficient resource management. By implementing OpenVPN for secure communications, and internal DNS server for reliable service resolution, the project ensures a secure and efficient networking environment. Kubernetes is utilized for container orchestration, with deployments managed through Helm to facilitate streamlined application updates. The Blue-Green deployment strategy not only guarantees zero downtime during application upgrades but also allows for swift rollback if issues arise. Key performance enhancements, including kernel and database tuning, optimize the system for high concurrency and responsiveness. The automated CI/CD pipeline powered by GitLab integrates security testing (SAST, DAST, SCA, and CIS) to maintain code quality and compliance throughout the development lifecycle.
+
 🛠 **Key Components**  
   
-1. **OpenVPN**
-2. **Internal DNS Server**
-3. **Proxy Server**  
-4. **Kernel Settings Optimization**
-5. **Database Settings Tuning**
-6. **Helm & Blue-Green Deployment**
+1. **🔒 OpenVPN**  
+2. **🌐 Internal DNS Server**  
+3. **🔗 Proxy Server**  
+4. **⚙️ Kernel Settings Optimization**  
+5. **📊 Database Settings Tuning**  
+6. **🎛️ Helm & Blue-Green Deployment**  
+7. **🌩️ Pulumi GCP Deploy with TypeScript**  
   
 ⚙️ **Architecture Overview**  
    
-1. **VPN**: Internal traffic is secured with OpenVPN.  
-2. **Internal DNS**: Ensures fast and secure DNS resolution for internal services.  
-3. **Proxy**: Provides centralized routing and security control between services.  
-4. **Kubernetes**: Manages containers and workloads, with deployments handled through Helm.  
-5. **Blue-Green Deployment**: Maintains high availability during application updates, allowing traffic to switch between two environments (bluegreen) without downtime.  
+1. **🔒 VPN**: Internal traffic is secured with OpenVPN.  
+2. **🌐 Internal DNS**: Ensures fast and secure DNS resolution for internal services.  
+3. **🔗 Proxy**: Provides centralized routing and security control between services.  
+4. **🐳 Kubernetes**: Manages containers and workloads, with deployments handled through Helm.  
+5. **🔄 Blue-Green Deployment**: Maintains high availability during application updates, allowing traffic to switch between two environments (blue-green) without downtime.  
   
 ![Architecture Diagram](https://github.com/chahid001/DevOps360/blob/main/assets/archi.png)  
   
 📈 **Technical Considerations**  
-1. **OpenVPN vs CloudVPN**: The type of VPN I needed (Road-Warrior, or client-to-gateway) isn't implemented in GCP. Therefore, I opted for **OpenVPN** to fulfill the requirement of secure client-to-gateway communication.
-2. **Internal DNS vs CloudDNS**: I initially considered **CloudDNS**, but it didn't work with my laptop when connected through VPN, as it falls outside the GCP environment. I chose an **Internal DNS server** instead to maintain reliable DNS resolution for internal services.
-3. **Kernel & DB Optimization**:  
+
+1. **🔒 OpenVPN vs CloudVPN**: The type of VPN I needed (Road-Warrior, or client-to-gateway) isn't implemented in GCP. Therefore, I opted for **OpenVPN** to fulfill the requirement of secure client-to-gateway communication.  
+2. **🌐 Internal DNS vs CloudDNS**: I initially considered **CloudDNS**, but it didn't work with my laptop when connected through VPN, as it falls outside the GCP environment. I chose an **Internal DNS server** instead to maintain reliable DNS resolution for internal services. 
+3. **⚙️ Kernel & DB Optimization**:  
    - **Kernel Settings**: I modified kernel settings by increasing `vm.max_map_count` to 524,288 (from the default 65,530). This was necessary because **SonarQube** uses **Elasticsearch**, which requires a large number of memory-mapped files to index and search data efficiently.  
-   - **File Descriptors**: I increased the number of file descriptors that can be opened by all processes on the system, as both **SonarQube** and **Elasticsearch** handle a large number of files simultaneously.  
-   - **Security Limits**: I added configurations in `/etc/security/limits.d/` to raise limits for the **SonarQube** user, increasing both the number of file descriptors (`nofile`) and the number of processes (`noproc`) they can create.  
-   - **SonarQube Service**: After making these changes, I created a system service to manage **SonarQube** efficiently.
-4. **Blue-Green Deployment**: Chosen for zero-downtime updates, ensuring continuous availability during upgrades.  
-5. **GitLab CICD**: Fully automated pipelines for testing, building, and deploying the application using Helm.  
-6. **HTTPS and Certificates**: Since I used self-signed certificates, I commented out most of the HTTPS-related configuration because **GitLab** and the **GitLab runners** couldn’t trust the self-signed certificate (not being signed by a CA).
-   
+   - **📂 File Descriptors**: I increased the number of file descriptors that can be opened by all processes on the system, as both **SonarQube** and **Elasticsearch** handle a large number of files simultaneously.  
+   - **🔒 Security Limits**: I added configurations in `/etc/security/limits.d/` to raise limits for the **SonarQube** user, increasing both the number of file descriptors (`nofile`) and the number of processes (`noproc`) they can create.  
+   - **🛠️ SonarQube Service**: After making these changes, I created a system service to manage **SonarQube** efficiently.  
+4. **🔄 Blue-Green Deployment**: Chosen for zero-downtime updates, ensuring continuous availability during upgrades.  
+5. **🚀 GitLab CICD**: Fully automated pipelines for testing, building, and deploying the application using Helm.  
+6. **🔐 HTTPS and Certificates**: Since I used self-signed certificates, I commented out most of the HTTPS-related configuration because **GitLab** and the **GitLab runners** couldn’t trust the self-signed certificate (not being signed by a CA).  
+
 🔑 **Resources I Used**  
 - [OWASP Dependency Check Dockerfile](https://hub.docker.com/r/owasp/dependency-check/dockerfile)  
 - [Nexus Main Port problem: Thanks Rich](https://groups.google.com/a/glists.sonatype.com/g/nexus-users/c/RWAK0BDSowU?pli=1)  
@@ -47,27 +49,31 @@ This project implements a robust infrastructure with OpenVPN, an internal DNS se
 
 ![Workflow Diagram](https://github.com/chahid001/DevOps360/blob/main/assets/workflow.png)
 ### CI/CD Workflow and Branch Strategy
-1. **Develop Branch**:  
+
+1. **🌱 Develop Branch**:  
    - Active development occurs here.  
    - Features and updates are developed and tested in this branch before merging into the `main` branch.  
    - Continuous Integration (CI) automatically builds and tests code on every commit.
-2. **Staging Branch**:  
+
+2. **📦 Staging Branch**:  
    - Used for deploying the new version to a **staging environment** in **Google Kubernetes Engine (GKE)**.  
    - A **blue-green deployment** strategy is applied, where the new version is deployed to a free environment (either blue or green).  
    - Teams (QA testers or developers) access the staging environment via a temporary **service** or **port-forwarding** for testing purposes.
-3. **Main Branch (Master)**:  
+
+3. **🚀 Main Branch (Master)**:  
    - Contains **production-ready code**.  
    - Once the new version in staging is verified, the **Helm chart** switches the service to point to the appropriate environment (either blue or green), ensuring a **seamless transition** without downtime.
-4. **GitLab CI Pipeline**:  
+
+4. **🔄 GitLab CI Pipeline**:  
    - Automates the process of scanning, building, and testing the application on every push.  
    - If all tests pass, the CI pipeline triggers a **Helm deployment** using the **Blue-Green deployment** strategy, deploying the new version to GKE.  
    - Ensures that changes are gradually rolled out and tested before becoming live in production.
-  
+
 🎯 **Goals Achieved**  
-- Fully automated infrastructure with secure networking through OpenVPN, internal DNS, and a proxy server.
-- Enhanced system performance with kernel tuning for Elasticsearch and database optimizations for high concurrency.
-- Scalable, zero-downtime deployments via Helm and Blue-Green strategy, ensuring seamless production updates.
-- Continuous Integration and Delivery (CI/CD) with GitLab pipelines, enabling efficient development cycles with automated security and testing tools (SAST, DAST, SCA, and CIS).
+- 🛠️ Fully automated infrastructure with secure networking through OpenVPN, internal DNS, and a proxy server.
+- ⚙️ Enhanced system performance with kernel tuning for Elasticsearch and database optimizations for high concurrency.
+- 📈 Scalable, zero-downtime deployments via Helm and Blue-Green strategy, ensuring seamless production updates.
+- 🔄 Continuous Integration and Delivery (CI/CD) with GitLab pipelines, enabling efficient development cycles with automated security and testing tools (SAST, DAST, SCA, and CIS).
 
 📦 **Deployment Steps**  
   
@@ -193,4 +199,7 @@ sudo ./openvpn-install.sh
  
 9. **CI/CD Pipeline & Blue-Green Deployment**  
    - Created a pipeline for **DevSecOps practices** in GitLab, automating **SAST**, **DAST**, **SCA**, and **CIS** scans using the tools configured in Nexus.  
-   - Implemented a **Blue-Green deployment strategy** to ensure zero-downtime during updates, by deploying new versions alongside the current version, testing, and then switching traffic to the new version once it's verified.  
+   - Implemented a **Blue-Green deployment strategy** to ensure zero-downtime during updates, by deploying new versions alongside the current version, testing, and then switching traffic to the new version once it's verified.
+  
+🔚 **Conclusion**  
+In summary, DevOps360 exemplifies the power of modern cloud infrastructure and DevSecOps practices, significantly improving operational efficiency and security posture. The project's automation and optimization strategies lead to faster development cycles, reduced downtime, and enhanced user satisfaction. By leveraging cutting-edge technologies and methodologies, this project sets a benchmark for scalable and resilient cloud solutions in today's fast-paced digital landscape.
