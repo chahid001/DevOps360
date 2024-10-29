@@ -5,23 +5,12 @@ This project implements a robust infrastructure with OpenVPN, an internal DNS se
   
 🛠 **Key Components**  
   
-1. **OpenVPN**:  
-   - Chose OpenVPN over CloudVPN for control and customization of internal networks.  
-  
-2. **Internal DNS Server**:  
-   - Preferred over CloudDNS to reduce latency and maintain control over internal communications.  
-  
-3. **Proxy Server**:  
-   - Used for routing, security, and access control between internal and external services.  
-  
-4. **Kernel Settings Optimization**:  
-   - Adjusted parameters like `vm.swappiness`, `fs.file-max`, and `net.ipv4.tcp_rmem` to optimize system performance for production.  
-  
-5. **Database Settings Tuning**:  
-   - Tuned `max_locks_per_transaction` to improve transaction throughput in PostgreSQL.  
-  
-6. **Helm & Blue-Green Deployment**:  
-   - Deployed applications via Helm and used Blue-Green deployment to ensure zero-downtime updates.  
+1. **OpenVPN**
+2. **Internal DNS Server**
+3. **Proxy Server**  
+4. **Kernel Settings Optimization**
+5. **Database Settings Tuning**
+6. **Helm & Blue-Green Deployment**
   
 ⚙️ **Architecture Overview**  
    
@@ -31,10 +20,9 @@ This project implements a robust infrastructure with OpenVPN, an internal DNS se
 4. **Kubernetes**: Manages containers and workloads, with deployments handled through Helm.  
 5. **Blue-Green Deployment**: Maintains high availability during application updates, allowing traffic to switch between two environments (bluegreen) without downtime.  
   
-![Architecture Diagram](link_to_image_diagram)  
+![Architecture Diagram](https://github.com/chahid001/DevOps360/blob/main/assets/archi.png)  
   
-🔧 **Why these Choices?**  
-  
+📈 **Technical Considerations**  
 1. **OpenVPN vs CloudVPN**: The type of VPN I needed (Road-Warrior, or client-to-gateway) isn't implemented in GCP. Therefore, I opted for **OpenVPN** to fulfill the requirement of secure client-to-gateway communication.
 2. **Internal DNS vs CloudDNS**: I initially considered **CloudDNS**, but it didn't work with my laptop when connected through VPN, as it falls outside the GCP environment. I chose an **Internal DNS server** instead to maintain reliable DNS resolution for internal services.
 3. **Kernel & DB Optimization**:  
@@ -45,8 +33,7 @@ This project implements a robust infrastructure with OpenVPN, an internal DNS se
 4. **Blue-Green Deployment**: Chosen for zero-downtime updates, ensuring continuous availability during upgrades.  
 5. **GitLab CICD**: Fully automated pipelines for testing, building, and deploying the application using Helm.  
 6. **HTTPS and Certificates**: Since I used self-signed certificates, I commented out most of the HTTPS-related configuration because **GitLab** and the **GitLab runners** couldn’t trust the self-signed certificate (not being signed by a CA).
-
-
+   
 🔑 **Resources I Used**  
 - [OWASP Dependency Check Dockerfile](https://hub.docker.com/r/owasp/dependency-check/dockerfile)  
 - [Nexus Main Port problem: Thanks Rich](https://groups.google.com/a/glists.sonatype.com/g/nexus-users/c/RWAK0BDSowU?pli=1)  
@@ -56,45 +43,30 @@ This project implements a robust infrastructure with OpenVPN, an internal DNS se
 - [What is HELM ?](https://www.youtube.com/watch?v=-ykwb1d0DXU)  
 - [Installing Helm in Google Kubernetes Engine](https://medium.com/google-cloud/installing-helm-in-google-kubernetes-engine-7f07f43c536e)  
   
-  
 📝 **Workflow & Branching**  
-
+![Workflow Diagram](https://github.com/chahid001/DevOps360/blob/main/assets/workflow.png)
 ### CI/CD Workflow and Branch Strategy
-
 1. **Develop Branch**:  
    - Active development occurs here.  
    - Features and updates are developed and tested in this branch before merging into the `main` branch.  
    - Continuous Integration (CI) automatically builds and tests code on every commit.
-
 2. **Staging Branch**:  
    - Used for deploying the new version to a **staging environment** in **Google Kubernetes Engine (GKE)**.  
    - A **blue-green deployment** strategy is applied, where the new version is deployed to a free environment (either blue or green).  
    - Teams (QA testers or developers) access the staging environment via a temporary **service** or **port-forwarding** for testing purposes.
-
 3. **Main Branch (Master)**:  
    - Contains **production-ready code**.  
    - Once the new version in staging is verified, the **Helm chart** switches the service to point to the appropriate environment (either blue or green), ensuring a **seamless transition** without downtime.
-
 4. **GitLab CI Pipeline**:  
    - Automates the process of scanning, building, and testing the application on every push.  
    - If all tests pass, the CI pipeline triggers a **Helm deployment** using the **Blue-Green deployment** strategy, deploying the new version to GKE.  
    - Ensures that changes are gradually rolled out and tested before becoming live in production.
-
-  
-📈 **Technical Considerations**  
-- Kernel Optimization: Increased vm.max_map_count to allow more memory-mapped areas for Elasticsearch in SonarQube, and increased file descriptors and process limits for high-performance workloads.
-- Database Tuning: Adjusted file descriptors and process limits to support concurrent transactions efficiently in SonarQube and other applications.
-- OpenVPN vs CloudVPN: Opted for OpenVPN due to GCP’s lack of support for client-to-gateway VPN (Road Warrior) and internal network security customization.
-- Internal DNS vs CloudDNS: Decided not to use CloudDNS because it doesn’t function properly when accessed over VPN from outside the GCP environment.
-- Blue-Green Deployment Strategy: Enabled zero-downtime updates by switching environments using Helm and GitLab CI/CD pipelines.
-- GitLab CI Pipeline: Automated pipelines for scanning, building, testing, and deploying with Helm, following best practices for DevSecOps. 
   
 🎯 **Goals Achieved**  
 - Fully automated infrastructure with secure networking through OpenVPN, internal DNS, and a proxy server.
 - Enhanced system performance with kernel tuning for Elasticsearch and database optimizations for high concurrency.
 - Scalable, zero-downtime deployments via Helm and Blue-Green strategy, ensuring seamless production updates.
 - Continuous Integration and Delivery (CI/CD) with GitLab pipelines, enabling efficient development cycles with automated security and testing tools (SAST, DAST, SCA, and CIS).
-
 
 📦 **Deployment Steps**  
   
