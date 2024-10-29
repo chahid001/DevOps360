@@ -17,6 +17,8 @@
   
 ## ⚙️ **Architecture Overview**  
 
+![Architecture Diagram](https://github.com/chahid001/DevOps360/blob/main/assets/archi.png)  
+
 1. **🔒 OpenVPN**: Internal traffic is secured with OpenVPN, deployed in a public subnet in the US-Central1 region (Zone C), enabling secure remote access for team members. This solution was chosen over CloudVPN due to the need for a road-warrior configuration (client-to-gateway), which is not supported by GCP.
 
 2. **🌐 Internal DNS**: An internal DNS server using dnsmasq is hosted in a private subnet in the US-Central1 region (Zone B). This setup ensures fast and secure DNS resolution for internal services. Initially considered CloudDNS, it was not viable due to VPN connectivity issues.
@@ -39,9 +41,6 @@
 6. **📊 Kernel & Database Optimization**: Kernel settings are optimized for performance, particularly for services like SonarQube, which utilizes Elasticsearch. Each database has specific firewall rules allowing internal traffic on necessary ports (5432 for PostgreSQL) to ensure smooth communication between services.
 
 7. **🎛️ Kubernetes**: Managed Kubernetes deployments are handled via Helm, allowing efficient container orchestration and management of workloads. The infrastructure supports Blue-Green deployment strategies to ensure high availability during application updates, allowing seamless transitions between environments without downtime.
-
-  
-![Architecture Diagram](https://github.com/chahid001/DevOps360/blob/main/assets/archi.png)  
   
 ## 📈 **Technical Considerations**  
 
