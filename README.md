@@ -3,6 +3,7 @@
 ## 🚀 **Overview**  
 
   DevOps360 establishes a cutting-edge cloud infrastructure on Google Cloud Platform (GCP) that integrates robust security and efficient resource management. By implementing OpenVPN for secure communications, and internal DNS server for reliable service resolution, the project ensures a secure and efficient networking environment. Kubernetes is utilized for container orchestration, with deployments managed through Helm to facilitate streamlined application updates. The Blue-Green deployment strategy not only guarantees zero downtime during application upgrades but also allows for swift rollback if issues arise. Key performance enhancements, including kernel and database tuning, optimize the system for high concurrency and responsiveness. The automated CI/CD pipeline powered by GitLab integrates security testing (SAST, DAST, SCA, and CIS) to maintain code quality and compliance throughout the development lifecycle.
+  
 ---
 ## 🛠 **Key Components**  
   
@@ -14,7 +15,7 @@
 6. **🎛️ Helm & Blue-Green Deployment**  
 7. **🌩️ Pulumi GCP Deploy with TypeScript**  
   
-⚙️ **Architecture Overview**  
+## ⚙️ **Architecture Overview**  
    
 1. **🔒 VPN**: Internal traffic is secured with OpenVPN.  
 2. **🌐 Internal DNS**: Ensures fast and secure DNS resolution for internal services.  
@@ -24,7 +25,7 @@
   
 ![Architecture Diagram](https://github.com/chahid001/DevOps360/blob/main/assets/archi.png)  
   
-📈 **Technical Considerations**  
+## 📈 **Technical Considerations**  
 
 1. **🔒 OpenVPN vs CloudVPN**: The type of VPN I needed (Road-Warrior, or client-to-gateway) isn't implemented in GCP. Therefore, I opted for **OpenVPN** to fulfill the requirement of secure client-to-gateway communication.  
 2. **🌐 Internal DNS vs CloudDNS**: I initially considered **CloudDNS**, but it didn't work with my laptop when connected through VPN, as it falls outside the GCP environment. I chose an **Internal DNS server** instead to maintain reliable DNS resolution for internal services. 
@@ -37,7 +38,7 @@
 5. **🚀 GitLab CICD**: Fully automated pipelines for testing, building, and deploying the application using Helm.  
 6. **🔐 HTTPS and Certificates**: Since I used self-signed certificates, I commented out most of the HTTPS-related configuration because **GitLab** and the **GitLab runners** couldn’t trust the self-signed certificate (not being signed by a CA).  
 
-🔑 **Resources I Used**  
+## 🔑 **Resources I Used**  
 - [OWASP Dependency Check Dockerfile](https://hub.docker.com/r/owasp/dependency-check/dockerfile)  
 - [Nexus Main Port problem: Thanks Rich](https://groups.google.com/a/glists.sonatype.com/g/nexus-users/c/RWAK0BDSowU?pli=1)  
 - [Using Sonatype Nexus Repository 3 for Docker Images](https://www.sonatype.com/blog/using-sonatype-nexus-repository-3-part-3-docker-images)  
@@ -46,7 +47,7 @@
 - [What is HELM ?](https://www.youtube.com/watch?v=-ykwb1d0DXU)  
 - [Installing Helm in Google Kubernetes Engine](https://medium.com/google-cloud/installing-helm-in-google-kubernetes-engine-7f07f43c536e)  
   
-📝 **Workflow & Branching**  
+## 📝 **Workflow & Branching**  
 
 ![Workflow Diagram](https://github.com/chahid001/DevOps360/blob/main/assets/workflow.png)
 ### CI/CD Workflow and Branch Strategy
@@ -76,7 +77,7 @@
 - 📈 Scalable, zero-downtime deployments via Helm and Blue-Green strategy, ensuring seamless production updates.
 - 🔄 Continuous Integration and Delivery (CI/CD) with GitLab pipelines, enabling efficient development cycles with automated security and testing tools (SAST, DAST, SCA, and CIS).
 
-📦 **Deployment Steps**  
+## 📦 **Deployment Steps**  
   
 1. Clone the repository.  
 2. In devops-services directory, add appropriate Variables to .env(Check types/end.d.ts) and deploy GCP infra:
